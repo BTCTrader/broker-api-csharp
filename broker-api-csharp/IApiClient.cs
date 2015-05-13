@@ -5,8 +5,8 @@ namespace broker_api_csharp
 {
     public interface IApiClient
     {
-        bool UpdateTicker();
-        bool UpdateAccountBalance();
+        ApiClient.Ticker GetTicker();
+        ApiClient.AccountBalance GetAccountBalance();
         IList<Order> GetOpenOrders();
         IList<UserTransOutput> GetUserTransactions(int limit, int offset, bool ascending);
         bool CancelOrder(Order order);
