@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace broker_api_csharp
 {
@@ -14,11 +16,7 @@ namespace broker_api_csharp
         private readonly string _publicKey;
         private readonly string _privateKey;
         private readonly string _baseUrl;
-
-        public Ticker ApiTicker { get; set; }
-
-        public AccountBalance Balance { get; set; }
-
+        
         public ApiClient(string publicKey, string privateKey, string baseUrl)
         {
             _publicKey = publicKey;
@@ -36,19 +34,26 @@ namespace broker_api_csharp
         /// <summary>
         /// Sets request headers and base uri and returns an HTTP client which can be used to make authenticated requests.
         /// </summary>
-        /// <returns>HttpClient with necessary authentication headers set</returns>
+        /// <returns>HttpClient with necessary authentication headers set.</returns>
         private HttpClient SetAuthencation()
         {
             var client = new HttpClient { BaseAddress = new Uri(_baseUrl) };
-            client.DefaultRequestHeaders.Add("X-PCK", _publicKey);
-            var stamp = DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
-            client.DefaultRequestHeaders.Add("X-Stamp", stamp.ToString(CultureInfo.InvariantCulture));
-            var data = String.Format("{0}{1}", _publicKey, stamp);
-            using (var hmac = new HMACSHA256(Convert.FromBase64String(_privateKey)))
+            try
             {
-                var signatureBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
-                var signature = Convert.ToBase64String(signatureBytes);
-                client.DefaultRequestHeaders.Add("X-Signature", signature);
+                client.DefaultRequestHeaders.Add("X-PCK", _publicKey);
+                var stamp = DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
+                client.DefaultRequestHeaders.Add("X-Stamp", stamp.ToString(CultureInfo.InvariantCulture));
+                var data = String.Format("{0}{1}", _publicKey, stamp);
+                using (var hmac = new HMACSHA256(Convert.FromBase64String(_privateKey)))
+                {
+                    var signatureBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
+                    var signature = Convert.ToBase64String(signatureBytes);
+                    client.DefaultRequestHeaders.Add("X-Signature", signature);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Exception occured in SetAuthentication method. The likely cause is a private or public key in wrong format. Exception:"+e.Message);
             }
             return client;
         }
@@ -72,13 +77,13 @@ namespace broker_api_csharp
         /// <returns>True if Order is submitted successfully, false if it was not.</returns>
         public bool SubmitOrder(Order order)
         {
-            var client = SetAuthencation();
-            var method = order.Type == Order.BuyOrder ? "api/buey" : "api/seall";
-            order.Price = Math.Round(order.Price, 2);
-
-            var response = client.PostAsJsonAsync(method, order).Result;
-
-            return RequestSucceeded(response);
+            using (var client = SetAuthencation())
+            {
+                var method = order.Type == Order.BuyOrder ? "api/buy" : "api/sell";
+                order.Price = Math.Round(order.Price, 2);
+                var response = client.PostAsJsonAsync(method, order).Result;
+                return RequestSucceeded(response);
+            }
         }
 
         /// <summary>
@@ -87,11 +92,12 @@ namespace broker_api_csharp
         /// <returns>True if order submitted successfully, false if order submission failed</returns>
         public bool SellAllMyBitcoin()
         {
+            var accountBalance = GetAccountBalance();
             var order = new Order
             {
                 IsMarketOrder = 1,
                 Type = Order.SellOrder,
-                Amount = Balance.BitcoinAvailable,
+                Amount = accountBalance.BitcoinAvailable,
             };
             return SubmitOrder(order);
         }
@@ -102,11 +108,12 @@ namespace broker_api_csharp
         /// <returns>True if order submitted successfully, false if order submission failed</returns>
         public bool BuyWithAllMyMoney()
         {
+            var accountBalance = GetAccountBalance();
             var order = new Order
             {
                 IsMarketOrder = 1,
                 Type = Order.BuyOrder,
-                Total = Balance.MoneyAvailable,
+                Total = accountBalance.MoneyAvailable,
             };
             return SubmitOrder(order);
         }
@@ -114,20 +121,18 @@ namespace broker_api_csharp
         /// <summary>
         /// Get the authenticated account's balance
         /// </summary>
-        /// <returns>An onject of type AccountBalance. Null if account balance cannot be retreived </returns>
-        public bool UpdateAccountBalance()
+        /// <returns>An object of type AccountBalance. Null if account balance cannot be retreived </returns>
+        public AccountBalance GetAccountBalance()
         {
             var client = SetAuthencation();
             var response = client.GetAsync("api/balance").Result;
-
-            if (RequestSucceeded(response))
-            {
-                Balance = JsonConvert.DeserializeObject<AccountBalance>(response.Content.ReadAsStringAsync().Result);
-                return true;
-            }
-            return false;
+            return RequestSucceeded(response) ? JsonConvert.DeserializeObject<AccountBalance>(response.Content.ReadAsStringAsync().Result) : null;
         }
 
+        /// <summary>
+        /// Get the authenticated account's latest transactions. Includes all balance changes. Buys, sells, deposits, withdrawals and fees.
+        /// </summary>
+        /// <returns>A list of object type UserTransOutput. Null if user tranasctions cannot be retreived </returns>
         public IList<UserTransOutput> GetUserTransactions(int limit, int offset, bool ascending)
         {
             var client = SetAuthencation();
@@ -183,23 +188,18 @@ namespace broker_api_csharp
         {
             var client = SetAuthencation();
             var response = client.GetAsync("api/openOrders").Result;
-            if (RequestSucceeded(response))
-            {
-                var result = JsonConvert.DeserializeObject<IList<Order>>(response.Content.ReadAsStringAsync().Result);
-                return result;
-            }
-            return null;
+            return RequestSucceeded(response) ? JsonConvert.DeserializeObject<IList<Order>>(response.Content.ReadAsStringAsync().Result) : null;
         }
 
         /// <summary>
-        /// Updates the Ticker object
+        /// Get the market info ticker
         /// </summary>
-        /// <returns>True if the update succeeded, false otherwise</returns>
-        public bool UpdateTicker()
+        /// <returns>Returns a market ticker object if the request succeeded. Null otherwise</returns>
+        public Ticker GetTicker()
         {
             var client = new HttpClient { BaseAddress = new Uri(_baseUrl) };
             var response = client.GetAsync("api/ticker").Result;
-            return RequestSucceeded(response);
+            return RequestSucceeded(response) ? JsonConvert.DeserializeObject<Ticker>(response.Content.ReadAsStringAsync().Result) : null;
         }
 
         /// <summary>
@@ -233,24 +233,22 @@ namespace broker_api_csharp
         /// <returns>Returns false if there were no errors. True if request failed.</returns>
         private static bool RequestSucceeded(HttpResponseMessage response)
         {
-            var requestSucceeded = true;
             var result = response.Content.ReadAsAsync<dynamic>().Result;
 
             if (!response.IsSuccessStatusCode)
             {
                 //TODO: Write your own error handling code.
-                Console.WriteLine("Received error. Status code: " + response.StatusCode + ". Error message: " + response.ReasonPhrase);
-                requestSucceeded = false;
+                Debug.WriteLine("Received error. Status code: " + response.StatusCode + ". Error message: " + response.ReasonPhrase);
+                return false;
             }
 
-            if (result["error"] != null)
+            if (result is JObject && result["error"] != null)
             {
                 //TODO: Write your own error handling code.
-                Console.WriteLine("Received error. Status code: " + result["error"]["code"] + ". Error message: " + result["error"]["message"]);
-                requestSucceeded = false;
+                Debug.WriteLine("Received error. Status code: " + result["error"]["code"] + ". Error message: " + result["error"]["message"]);
+                return false;
             }
-
-            return requestSucceeded;
+            return true;
         }
 
         public class Order
