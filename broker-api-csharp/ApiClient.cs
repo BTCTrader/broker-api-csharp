@@ -36,10 +36,8 @@ namespace broker_api_csharp
         /// Sets request headers and base uri and returns an HTTP client which can be used to make authenticated requests.
         /// </summary>
         /// <returns>HttpClient with necessary authentication headers set.</returns>
-
-        private HttpResponseMessage SendRequest<T>(HttpVerbs method, string requestUri, T value,bool requireAuthenticate)
+        private HttpResponseMessage SendRequest<T>(HttpVerbs method, string requestUri, T value, bool requireAuthenticate)
         {
-
             HttpResponseMessage myResponse = null;
             using (var client = new HttpClient { BaseAddress = new Uri(_baseUrl) })
             {
@@ -52,7 +50,7 @@ namespace broker_api_csharp
                     var signature = GetSignature(stamp);
                     client.DefaultRequestHeaders.Add("X-Signature", signature);
                 }
-          
+
                 switch (method)
                 {
                     case HttpVerbs.Post:
@@ -65,20 +63,9 @@ namespace broker_api_csharp
 
                 if (!RequestSucceeded(myResponse))
                     myResponse = null;
-
             }
-
             return myResponse;
-
-
         }
-
-
-
-
-
-
-
 
         private static long GetStamp()
         {
@@ -96,27 +83,14 @@ namespace broker_api_csharp
                 {
                     var signatureBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
                     signature = Convert.ToBase64String(signatureBytes);
-
                 }
             }
             catch (Exception e)
             {
                 Debug.WriteLine("Exception occured in GetSignature method. The likely cause is a private or public key in wrong format. Exception:" + e.Message);
-
             }
 
             return signature;
-        }
-        /// <summary>
-        /// Converts a Datatime to an equivalent Unix Timestamp, in seconds
-        /// </summary>
-        /// <param name="date"></param>
-        /// <returns></returns>
-        private double ConvertToUnixTimestamp(DateTime date)
-        {
-            var origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            var diff = date.ToUniversalTime() - origin;
-            return Math.Floor(diff.TotalSeconds);
         }
 
         /// <summary>
@@ -129,18 +103,15 @@ namespace broker_api_csharp
             var result = false;
             var method = order.Type == Order.BuyOrder ? "api/buy" : "api/sell";
             order.Price = Math.Round(order.Price, 2);
-            var response = SendRequest(HttpVerbs.Post, method, order,true);
+            var response = SendRequest(HttpVerbs.Post, method, order, true);
 
             if (response != null)
             {
                 var myOrder = JsonConvert.DeserializeObject<Order>(response.Content.ReadAsStringAsync().Result);
                 order = myOrder;
                 result = true;
-
             }
-
             return result;
-
         }
 
         /// <summary>
@@ -182,10 +153,10 @@ namespace broker_api_csharp
         public AccountBalance GetAccountBalance()
         {
             AccountBalance result = null;
-            var response=SendRequest(HttpVerbs.Get, "api/balance", false,true);
+            var response = SendRequest(HttpVerbs.Get, "api/balance", false, true);
             if (response != null)
                 result = JsonConvert.DeserializeObject<AccountBalance>(response.Content.ReadAsStringAsync().Result);
-            
+
             return result;
         }
 
@@ -196,7 +167,7 @@ namespace broker_api_csharp
         public IList<UserTransOutput> GetUserTransactions(int limit, int offset, bool ascending)
         {
             IList<UserTransOutput> result = null;
-          
+
             var requestUri = "api/usertransactions?limit=" + limit + "&offset=" + offset;
 
             if (ascending)
@@ -204,14 +175,12 @@ namespace broker_api_csharp
             else
                 requestUri += "&sort=desc";
 
+            var response = SendRequest(HttpVerbs.Get, requestUri, false, true);
 
-            var response = SendRequest(HttpVerbs.Get, requestUri, false,true);
-
-            if (response!=null)
+            if (response != null)
             {
                 var content = response.Content.ReadAsStringAsync().Result;
-                result= JsonConvert.DeserializeObject<UserTransOutput[]>(content);
-                
+                result = JsonConvert.DeserializeObject<UserTransOutput[]>(content);
             }
             return result;
         }
@@ -224,7 +193,7 @@ namespace broker_api_csharp
         {
             var result = false;
 
-            var response = SendRequest(HttpVerbs.Post, "api/cancelOrder", new {id = order.Id},true);
+            var response = SendRequest(HttpVerbs.Post, "api/cancelOrder", new { id = order.Id }, true);
             if (response != null)
                 result = true;
             return result;
@@ -253,7 +222,7 @@ namespace broker_api_csharp
         public IList<Order> GetOpenOrders()
         {
             IList<Order> result = null;
-            var response = SendRequest(HttpVerbs.Get, "api/openOrders", false,true);
+            var response = SendRequest(HttpVerbs.Get, "api/openOrders", false, true);
             if (response != null)
                 result = JsonConvert.DeserializeObject<IList<Order>>(response.Content.ReadAsStringAsync().Result);
             return result;
@@ -280,9 +249,9 @@ namespace broker_api_csharp
         {
             OrderBook result = null;
             var response = SendRequest(HttpVerbs.Get, "api/orderbook", false, false);
-            if (response!=null)
+            if (response != null)
                 result = JsonConvert.DeserializeObject<OrderBook>(response.Content.ReadAsStringAsync().Result);
-           return result;
+            return result;
         }
 
         /// <summary>
@@ -313,7 +282,7 @@ namespace broker_api_csharp
             {
                 //TODO: Write your own error handling code.
                 Debug.WriteLine("Received error. Status code: " + (json["error"]["code"].ToString() as string) + ". Error message: " + (json["error"]["message"].ToString() as string));
-                result= false;
+                result = false;
             }
             return result;
         }
@@ -322,23 +291,6 @@ namespace broker_api_csharp
         {
             Get,
             Post,
-
-
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }
