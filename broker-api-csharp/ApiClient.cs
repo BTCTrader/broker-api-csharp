@@ -184,9 +184,8 @@ namespace broker_api_csharp
             AccountBalance result = null;
             var response=SendRequest(HttpVerbs.Get, "api/balance", false,true);
             if (response != null)
-            {
                 result = JsonConvert.DeserializeObject<AccountBalance>(response.Content.ReadAsStringAsync().Result);
-            }
+            
             return result;
         }
 
