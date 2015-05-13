@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using broker_api_csharp.Models;
 
 namespace broker_api_csharp
 {
@@ -11,18 +11,21 @@ namespace broker_api_csharp
             var client = new ApiClient("55507012a7b7211964846e79", "9fVzdZmxy4u+1LJ3SsfiYBsZI4+S+FpM",
                 "https://btctrader-broker-acntrade.azurewebsites.net/");
 
-            client.GetOrderBook();
+            var orders=client.GetOrderBook();
 
             client.UpdateAccountBalance();
 
-            var order = new ApiClient.Order
+            var myAvaliableBitcoin = client.Balance.BitcoinAvailable;
+
+            var order = new Order
             {
                 Price = 1000m,
-                Amount = 1000001m,
-                Type = ApiClient.Order.SellOrder,
+                Amount = 0.1m,
+                Type = Order.SellOrder,
             };
 
-            client.SubmitOrder(order);
+            if(client.SubmitOrder(ref order))
+                Console.WriteLine(order.Id);
 
             Console.ReadLine();
         }

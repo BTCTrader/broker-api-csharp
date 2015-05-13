@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using broker_api_csharp.Models;
 using Newtonsoft.Json;
 
 namespace broker_api_csharp
@@ -70,15 +71,24 @@ namespace broker_api_csharp
         /// </summary>
         /// <param name="order">Order to be submitted</param>
         /// <returns>True if Order is submitted successfully, false if it was not.</returns>
-        public bool SubmitOrder(Order order)
+        public bool SubmitOrder(ref Order order)
         {
             var client = SetAuthencation();
-            var method = order.Type == Order.BuyOrder ? "api/buey" : "api/seall";
+            var method = order.Type == Order.BuyOrder ? "api/buy" : "api/sell";
             order.Price = Math.Round(order.Price, 2);
 
             var response = client.PostAsJsonAsync(method, order).Result;
 
-            return RequestSucceeded(response);
+            var result=RequestSucceeded(response);
+
+            if (result)
+            {
+                var myOrder = JsonConvert.DeserializeObject<Order>(response.Content.ReadAsStringAsync().Result);
+                order = myOrder;
+
+            }
+              
+                return result;
         }
 
         /// <summary>
@@ -93,7 +103,7 @@ namespace broker_api_csharp
                 Type = Order.SellOrder,
                 Amount = Balance.BitcoinAvailable,
             };
-            return SubmitOrder(order);
+            return SubmitOrder(ref order);
         }
 
         /// <summary>
@@ -108,7 +118,7 @@ namespace broker_api_csharp
                 Type = Order.BuyOrder,
                 Total = Balance.MoneyAvailable,
             };
-            return SubmitOrder(order);
+            return SubmitOrder(ref order);
         }
 
         /// <summary>
@@ -253,106 +263,15 @@ namespace broker_api_csharp
             return requestSucceeded;
         }
 
-        public class Order
-        {
-            public const string BuyOrder = "BuyBtc";
-            public const string SellOrder = "SellBtc";
-            public string Id { get; set; }
-            public int IsMarketOrder { get; set; }
-            public decimal Price { get; set; }
-            public decimal Amount { get; set; }
-            public decimal Total { get; set; }
-            public string Type { get; set; }
-        }
+    
 
-        public class AccountBalance
-        {
-            [JsonProperty("money_balance")]
-            public decimal MoneyBalance { get; set; }
+      
 
-            [JsonProperty("bitcoin_balance")]
-            public decimal BitcoinBalance { get; set; }
+    
+     
 
-            [JsonProperty("money_reserved")]
-            public decimal MoneyReserved { get; set; }
+     
 
-            [JsonProperty("bitcoin_reserved")]
-            public decimal BitcoinReserved { get; set; }
-
-            [JsonProperty("money_available")]
-            public decimal MoneyAvailable { get; set; }
-
-            [JsonProperty("bitcoin_available")]
-            public decimal BitcoinAvailable { get; set; }
-
-            [JsonProperty("fee_percentage")]
-            public decimal FeePercentage { get; set; }
-
-            public override String ToString()
-            {
-                return "Money Balance: " + MoneyBalance + "\n" + "Bitcoin Balance: " + BitcoinBalance + "\n" +
-                       "Money Reserved: " + MoneyReserved + "\n" + "Bitcoin Reserved: " + BitcoinReserved;
-            }
-        }
-
-        public class Ticker
-        {
-            public decimal Last { get; set; }
-            public decimal High { get; set; }
-            public decimal Low { get; set; }
-            public decimal Volume { get; set; }
-            public decimal Bid { get; set; }
-            public decimal Ask { get; set; }
-            public override String ToString()
-            {
-                return "Last: " + Last + "\n" + "High: " + High + "\n" +
-                       "Low: " + Low + "\n" + "Volume: " + Volume + "\n" +
-                       "Bid: " + Bid + "\n" + "Ask: " + Ask;
-            }
-        }
-
-        public class OrderBook
-        {
-            [JsonProperty("timeStamp")]
-            public decimal TimeStamp { get; set; }
-
-            [JsonProperty("bids")]
-            public IList<dynamic> Bids { get; set; }
-
-            [JsonProperty("asks")]
-            public IList<dynamic> Asks { get; set; }
-        }
-
-        public class UserTransInput
-        {
-            public string Sort { get; set; } // sorting by desc, asc
-            public int Offset { get; set; } // number of skiping records
-            public int Limit { get; set; } // number of limit query
-        }
-
-        public class UserTransOutput
-        {
-            [JsonProperty("Id")]
-            public string Id { get; set; } // objectId
-
-            [JsonProperty("Date")]
-            public DateTime Date { get; set; } // CreatedDate
-
-            [JsonProperty("Operation")]
-            public string Operation { get; set; } // Operation name
-
-            [JsonProperty("Btc")]
-            public decimal Btc
-            {
-                get;
-                set;
-            }
-
-            [JsonProperty("Currency")]
-            public decimal Currency { get; set; }
-
-            [JsonProperty("Price")]
-            public decimal Price { get; set; }
-        }
+       
     }
 }

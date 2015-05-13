@@ -51,6 +51,12 @@
   <ItemGroup>
     <Compile Include="ApiClient.cs" />
     <Compile Include="IApiClient.cs" />
+    <Compile Include="Models\AccountBalance.cs" />
+    <Compile Include="Models\Order.cs" />
+    <Compile Include="Models\UserTransOutput.cs" />
+    <Compile Include="Models\UserTransInput.cs" />
+    <Compile Include="Models\OrderBook.cs" />
+    <Compile Include="Models\Ticker.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
