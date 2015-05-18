@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using broker_api_csharp.Models;
+using BTCTrader.APIClient.Models;
 
-namespace broker_api_csharp
+namespace BTCTrader.APIClient
 {
     public interface IApiClient
     {

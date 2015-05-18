@@ -1,4 +1,4 @@
-﻿namespace broker_api_csharp.Models
+﻿namespace BTCTrader.APIClient.Models
 {
     public class Order
     {

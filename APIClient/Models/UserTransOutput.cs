@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace broker_api_csharp.Models
+namespace BTCTrader.APIClient.Models
 {
     public class UserTransOutput
     {

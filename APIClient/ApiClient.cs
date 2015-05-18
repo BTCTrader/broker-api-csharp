@@ -6,11 +6,11 @@ using System.Globalization;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
-using broker_api_csharp.Models;
+using BTCTrader.APIClient.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace broker_api_csharp
+namespace BTCTrader.APIClient
 {
     public class ApiClient : IApiClient
     {
