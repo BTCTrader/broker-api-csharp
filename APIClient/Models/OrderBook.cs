@@ -9,9 +9,9 @@ namespace BTCTrader.APIClient.Models
         public decimal TimeStamp { get; set; }
 
         [JsonProperty("bids")]
-        public IList<dynamic> Bids { get; set; }
+        public IList<IList<decimal>> Bids { get; set; }
 
         [JsonProperty("asks")]
-        public IList<dynamic> Asks { get; set; }
+        public IList<IList<decimal>> Asks { get; set; }
     }
 }

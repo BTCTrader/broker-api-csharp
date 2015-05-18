@@ -15,12 +15,19 @@ namespace BTCTrader.APIExample
             var ticker = client.GetTicker();
             Console.WriteLine(ticker.ToString()); // Print the ticker to console
 
-            var orderbook = client.GetOrderBook(); 
-            var bestAskPrice = decimal.Parse(orderbook.Asks[0][0], new NumberFormatInfo { NumberDecimalSeparator = "." });
-            var bestAskAmount = decimal.Parse(orderbook.Asks[0][1], new NumberFormatInfo { NumberDecimalSeparator = "." });
+            var orderbook = client.GetOrderBook();
+
+            var bestBidPrice = orderbook.Bids[0][0];
+            var bestBidAmount = orderbook.Bids[0][1];
+            Console.WriteLine("Best bid price:" + bestBidPrice); // Print the best bid price and amount to console
+            Console.WriteLine("Best bid amount:" + bestBidAmount);
+
+            var bestAskPrice = orderbook.Asks[0][0];
+            var bestAskAmount = orderbook.Asks[0][1];
             Console.WriteLine("Best ask price:" + bestAskPrice); // Print the best ask price and amount to console
             Console.WriteLine("Best ask amount:" + bestAskAmount);
 
+            // BELOW THIS LINE REQUIRES AUTHENTICATION
             var accountBalance = client.GetAccountBalance();
             Console.WriteLine("My total Bitcoin: " + accountBalance.BitcoinBalance); // Print my bitcoin balance to console
 
