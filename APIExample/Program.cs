@@ -10,7 +10,7 @@ namespace BTCTrader.APIExample
         static void Main() // API Test
         {
             // Alternatively you can set configure these in your web.config or app.config and use the parameterless constructor
-            var client = new ApiClient("yourpublickey", "yourprivatekey", "https://btctrader-broker-btcturk.azurewebsites.net");
+            var client = new ApiClient("555a2367fd12341a9c41829b", "ww7Z5fgaKmDTYwrbcgHPwGffsVHxyxMi", "http://localhost:30001/");
 
             var ticker = client.GetTicker();
             Console.WriteLine(ticker.ToString()); // Print the ticker to console
@@ -32,7 +32,7 @@ namespace BTCTrader.APIExample
             Console.WriteLine("My total Bitcoin: " + accountBalance.BitcoinBalance); // Print my bitcoin balance to console
 
             var openorOrders = client.GetOpenOrders();
-            if (openorOrders != null)
+            if (openorOrders.Count != 0)
             {
                 Console.WriteLine("I have some open orders");
                 client.CancelOrder(openorOrders[0]); // Cancel one of my open orders
