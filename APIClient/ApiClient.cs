@@ -41,7 +41,6 @@ namespace BTCTrader.APIClient
             HttpResponseMessage myResponse = null;
             using (var client = new HttpClient { BaseAddress = new Uri(_baseUrl) })
             {
-
                 if (requireAuthenticate)
                 {
                     client.DefaultRequestHeaders.Add("X-PCK", _publicKey);
@@ -69,7 +68,7 @@ namespace BTCTrader.APIClient
 
         private static long GetStamp()
         {
-            var stamp = DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
+            var stamp = DateTime.UtcNow.Ticks;
             return stamp;
         }
 
