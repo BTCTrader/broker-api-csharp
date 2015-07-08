@@ -8,7 +8,7 @@ namespace BTCTrader.APIExample
         static void Main() // API Test
         {
             // Alternatively you can set configure these in your web.config or app.config and use the parameterless constructor
-            var client = new ApiClient("yourpublicley", "yourprivatekey", "yoursiteuser ex: https://www.btcturk.com");
+            var client = new ApiClient("yourpublicley", "yourprivatekey", "https://www.btcturk.com");
 
             var ticker = client.GetTicker();
             Console.WriteLine(ticker.ToString()); // Print the ticker to console
