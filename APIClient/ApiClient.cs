@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using BTCTrader.APIClient.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -39,6 +40,7 @@ namespace BTCTrader.APIClient
         private HttpResponseMessage SendRequest<T>(HttpVerbs method, string requestUri, T value, bool requireAuthenticate)
         {
             HttpResponseMessage myResponse = null;
+            Task<HttpResponseMessage> myTask = null;
             using (var client = new HttpClient { BaseAddress = new Uri(_baseUrl) })
             {
                 if (requireAuthenticate)
@@ -53,15 +55,23 @@ namespace BTCTrader.APIClient
                 switch (method)
                 {
                     case HttpVerbs.Post:
-                        myResponse = client.PostAsJsonAsync(requestUri, value).Result;
+                        myTask = client.PostAsJsonAsync(requestUri, value);
                         break;
                     case HttpVerbs.Get:
-                        myResponse = client.GetAsync(requestUri).Result;
+                        myTask = client.GetAsync(requestUri);
                         break;
                 }
-
-                if (!RequestSucceeded(myResponse))
-                    myResponse = null;
+                if (myTask != null)
+                {
+                    myTask.Wait();
+                    if (!myTask.IsCanceled && !myTask.IsFaulted)
+                    {
+                        myResponse = myTask.Result;
+                        if (!RequestSucceeded(myResponse))
+                            myResponse = null;  
+                    }
+                    
+                }
             }
             return myResponse;
         }
