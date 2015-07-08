@@ -269,19 +269,23 @@ namespace BTCTrader.APIClient
         private static bool RequestSucceeded(HttpResponseMessage response)
         {
             var result = true;
-            var json = response.Content.ReadAsAsync<dynamic>().Result;
-
             if (!response.IsSuccessStatusCode)
             {
                 //TODO: Write your own error handling code.
-                Debug.WriteLine("Received error. Status code: " + response.StatusCode + ". Error message: " + response.ReasonPhrase);
+                Debug.WriteLine("Received error. Status code: " + response.StatusCode + ". Error message: " +
+                                response.ReasonPhrase);
                 result = false;
             }
-            else if (json is JObject && json["error"] != null)
+            else
             {
-                //TODO: Write your own error handling code.
-                Debug.WriteLine("Received error. Status code: " + (json["error"]["code"].ToString() as string) + ". Error message: " + (json["error"]["message"].ToString() as string));
-                result = false;
+                var json = response.Content.ReadAsAsync<dynamic>().Result;
+                if (json is JObject && json["error"] != null)
+                {
+                    //TODO: Write your own error handling code.
+                    Debug.WriteLine("Received error. Status code: " + (json["error"]["code"].ToString() as string) +
+                                    ". Error message: " + (json["error"]["message"].ToString() as string));
+                    result = false;
+                }
             }
             return result;
         }
