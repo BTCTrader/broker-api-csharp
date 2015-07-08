@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using BTCTrader.APIClient.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -40,8 +39,8 @@ namespace BTCTrader.APIClient
         private HttpResponseMessage SendRequest<T>(HttpVerbs method, string requestUri, T value, bool requireAuthenticate)
         {
             HttpResponseMessage myResponse = null;
-            Task<HttpResponseMessage> myTask = null;
-            using (var client = new HttpClient { BaseAddress = new Uri(_baseUrl) })
+           
+            using (var client = new HttpClient { BaseAddress = new Uri(_baseUrl), Timeout =TimeSpan.FromSeconds(30)})
             {
                 if (requireAuthenticate)
                 {
@@ -51,31 +50,29 @@ namespace BTCTrader.APIClient
                     var signature = GetSignature(stamp);
                     client.DefaultRequestHeaders.Add("X-Signature", signature);
                 }
-
-                switch (method)
+                try
                 {
-                    case HttpVerbs.Post:
-                        myTask = client.PostAsJsonAsync(requestUri, value);
-                        break;
-                    case HttpVerbs.Get:
-                        myTask = client.GetAsync(requestUri);
-                        break;
+                    switch (method)
+                    {
+                        case HttpVerbs.Post:
+                            myResponse = client.PostAsJsonAsync(requestUri, value).Result;
+                            break;
+                        case HttpVerbs.Get:
+                            myResponse = client.GetAsync(requestUri).Result;
+                            break;
+                    }
                 }
-                if (myTask != null)
+                catch (Exception ex)
                 {
-                    //Wait Until Task is completed. And Don't wait more than timeout
-                    var startTime = DateTime.UtcNow;
-                    while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(client.Timeout.TotalSeconds+1) && !myTask.IsCompleted){}
-                    if (!myTask.IsCanceled && !myTask.IsFaulted)
-                    {
-                        myResponse = myTask.Result;
-                        if (!RequestSucceeded(myResponse))
-                            myResponse = null;  
-                    }
-                    else
-                    {
-                        Debug.WriteLine("Http Request Taks: "+myTask.Status);
-                    }
+                    
+                    Debug.WriteLine(ex.Message);
+                    myResponse = null;
+                }
+             
+                if (myResponse != null)
+                {
+                    if (!RequestSucceeded(myResponse))
+                        myResponse = null;  
                     
                 }
             }
