@@ -1,6 +1,5 @@
 ﻿using System;
 using BTCTrader.APIClient;
-using BTCTrader.APIClient.Models;
 
 namespace BTCTrader.APIExample
 {

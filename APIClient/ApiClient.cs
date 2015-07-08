@@ -63,12 +63,17 @@ namespace BTCTrader.APIClient
                 }
                 if (myTask != null)
                 {
-                    myTask.Wait();
+                    //TodO Wait Until Task is completed
+                    while (!myTask.IsCompleted){}
                     if (!myTask.IsCanceled && !myTask.IsFaulted)
                     {
                         myResponse = myTask.Result;
                         if (!RequestSucceeded(myResponse))
                             myResponse = null;  
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Http Request Taks: "+myTask.Status);
                     }
                     
                 }
