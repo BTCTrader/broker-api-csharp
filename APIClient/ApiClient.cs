@@ -63,8 +63,11 @@ namespace BTCTrader.APIClient
                 }
                 if (myTask != null)
                 {
-                    //TodO Wait Until Task is completed
-                    while (!myTask.IsCompleted){}
+                    //TodO Wait Until Task is completed. And Don't wait more than timeout
+                    var startTime = DateTime.UtcNow;
+
+                  
+                    while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(client.Timeout.TotalSeconds+1) && !myTask.IsCompleted){}
                     if (!myTask.IsCanceled && !myTask.IsFaulted)
                     {
                         myResponse = myTask.Result;
