@@ -20,7 +20,7 @@ namespace BTCTrader.APIExample
             var bestBidAmount = orderbook.Bids[0][1];
             Console.WriteLine("Best bid price:" + bestBidPrice); // Print the best bid price and amount to console
             Console.WriteLine("Best bid amount:" + bestBidAmount);
-            http://btctrader-scalper-live.azurewebsites.net/
+
             var bestAskPrice = orderbook.Asks[0][0];
             var bestAskAmount = orderbook.Asks[0][1];
             Console.WriteLine("Best ask price:" + bestAskPrice); // Print the best ask price and amount to console
