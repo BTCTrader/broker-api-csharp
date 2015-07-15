@@ -19,5 +19,4 @@ namespace BTCTrader.APIClient.Models
                    "Open: " + Open;
         }
     }
-
 }

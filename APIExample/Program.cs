@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using BTCTrader.APIClient;
 
 namespace BTCTrader.APIExample
@@ -41,6 +42,11 @@ namespace BTCTrader.APIExample
                 Console.WriteLine("I don't have any open orders");
             }
 
+            var trades = client.GetLastTrades(50);
+            foreach (var trade in trades)
+            {
+                Console.WriteLine(trade);
+            }
             //// Submit an ask order at 1,000,000 per btc.
             //var order = new Order
             //{

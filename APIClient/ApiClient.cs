@@ -38,9 +38,9 @@ namespace BTCTrader.APIClient
         /// <returns>HttpClient with necessary authentication headers set.</returns>
         private HttpResponseMessage SendRequest<T>(HttpVerbs method, string requestUri, T value, bool requireAuthenticate)
         {
-            HttpResponseMessage myResponse = null;
-           
-            using (var client = new HttpClient { BaseAddress = new Uri(_baseUrl), Timeout =TimeSpan.FromSeconds(30)})
+            HttpResponseMessage response = null;
+
+            using (var client = new HttpClient { BaseAddress = new Uri(_baseUrl), Timeout = TimeSpan.FromSeconds(30) })
             {
                 if (requireAuthenticate)
                 {
@@ -50,38 +50,39 @@ namespace BTCTrader.APIClient
                     var signature = GetSignature(stamp);
                     client.DefaultRequestHeaders.Add("X-Signature", signature);
                 }
+
                 try
                 {
                     switch (method)
                     {
                         case HttpVerbs.Post:
-                            myResponse = client.PostAsJsonAsync(requestUri, value).Result;
+                            response = client.PostAsJsonAsync(requestUri, value).Result;
                             break;
                         case HttpVerbs.Get:
-                            myResponse = client.GetAsync(requestUri).Result;
+                            response = client.GetAsync(requestUri).Result;
                             break;
                     }
                 }
                 catch (Exception ex)
                 {
-                    
                     Debug.WriteLine(ex.Message);
-                    myResponse = null;
+                    response = null;
                 }
-             
-                if (myResponse != null)
+
+                if (response != null)
                 {
-                    if (!RequestSucceeded(myResponse))
-                        myResponse = null;  
-                    
+                    if (!RequestSucceeded(response))
+                        response = null;
                 }
             }
-            return myResponse;
+
+            return response;
         }
 
         private static long GetStamp()
         {
             var stamp = DateTime.UtcNow.Ticks;
+
             return stamp;
         }
 
@@ -110,7 +111,7 @@ namespace BTCTrader.APIClient
         /// </summary>
         /// <param name="order">Order to be submitted</param>
         /// <returns>True if Order is submitted successfully, false if it was not.</returns>
-        public bool SubmitOrder(ref Order order)
+        private bool SubmitOrder(ref Order order)
         {
             var result = false;
             var method = order.Type == Order.BuyOrder ? "api/buy" : "api/sell";
@@ -123,6 +124,7 @@ namespace BTCTrader.APIClient
                 order = myOrder;
                 result = true;
             }
+
             return result;
         }
 
@@ -139,6 +141,7 @@ namespace BTCTrader.APIClient
                 Type = Order.SellOrder,
                 Amount = accountBalance.BitcoinAvailable,
             };
+
             return SubmitOrder(ref order);
         }
 
@@ -155,6 +158,7 @@ namespace BTCTrader.APIClient
                 Type = Order.BuyOrder,
                 Total = accountBalance.MoneyAvailable,
             };
+
             return SubmitOrder(ref order);
         }
 
@@ -194,6 +198,7 @@ namespace BTCTrader.APIClient
                 var content = response.Content.ReadAsStringAsync().Result;
                 result = JsonConvert.DeserializeObject<UserTransOutput[]>(content);
             }
+
             return result;
         }
 
@@ -208,6 +213,7 @@ namespace BTCTrader.APIClient
             var response = SendRequest(HttpVerbs.Post, "api/cancelOrder", new { id = order.Id }, true);
             if (response != null)
                 result = true;
+
             return result;
         }
 
@@ -237,6 +243,7 @@ namespace BTCTrader.APIClient
             var response = SendRequest(HttpVerbs.Get, "api/openOrders", false, true);
             if (response != null)
                 result = JsonConvert.DeserializeObject<IList<Order>>(response.Content.ReadAsStringAsync().Result);
+
             return result;
         }
 
@@ -250,6 +257,7 @@ namespace BTCTrader.APIClient
             var response = SendRequest(HttpVerbs.Get, "api/ticker", false, false);
             if (response != null)
                 result = JsonConvert.DeserializeObject<Ticker>(response.Content.ReadAsStringAsync().Result);
+
             return result;
         }
 
@@ -263,6 +271,7 @@ namespace BTCTrader.APIClient
             var response = SendRequest(HttpVerbs.Get, "api/orderbook", false, false);
             if (response != null)
                 result = JsonConvert.DeserializeObject<OrderBook>(response.Content.ReadAsStringAsync().Result);
+
             return result;
         }
 
@@ -270,9 +279,17 @@ namespace BTCTrader.APIClient
         /// Get the last trades in the market
         /// </summary>
         /// <returns>Null if there was an error</returns>
-        public void GetLastTrades()
+        public IList<Trades> GetLastTrades(int last = 0)
         {
-            throw new Exception("Not implemented!");
+            IList<Trades> result = null;
+            var url = "api/trades";
+            if (last != 0)
+                url = url + "?last=" + last;
+            var response = SendRequest(HttpVerbs.Get, url, false, false);
+            if (response != null)
+                result = JsonConvert.DeserializeObject<IList<Trades>>(response.Content.ReadAsStringAsync().Result);
+
+            return result;
         }
 
         /// <summary>
@@ -300,6 +317,7 @@ namespace BTCTrader.APIClient
                     result = false;
                 }
             }
+
             return result;
         }
 

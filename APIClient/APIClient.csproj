@@ -53,6 +53,7 @@
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderBook.cs" />
     <Compile Include="Models\Ticker.cs" />
+    <Compile Include="Models\Trades.cs" />
     <Compile Include="Models\UserTransInput.cs" />
     <Compile Include="Models\UserTransOutput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
