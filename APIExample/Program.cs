@@ -1,5 +1,6 @@
 ﻿using System;
 using BTCTrader.APIClient;
+using BTCTrader.APIClient.Models;
 
 namespace BTCTrader.APIExample
 {
@@ -46,6 +47,48 @@ namespace BTCTrader.APIExample
             {
                 Console.WriteLine(trade);
             }
+
+            var depositMoney = client.GetDepositMoney();
+
+            if(depositMoney != null) 
+                PrintDepositMoney(depositMoney);
+
+            var depositModel = new DepositMoneyInput
+            {
+                Amount = 14,
+                AmountPrecision = 0
+            };
+
+            depositMoney = client.DepositMoney(depositModel);
+
+            if (depositMoney != null)
+                PrintDepositMoney(depositMoney);
+
+            var withdrawalMoney = client.GetWithdrawalMoney();
+
+            if (withdrawalMoney != null)
+                PrintWithdrawalMoney(withdrawalMoney);
+
+            var withdrawalModel = new WithdrawalMoneyInput
+            {
+                Amount = 15,
+                AmountPrecision = 0,
+                BankId = "51c41f6349ede8108423f00a",
+                BankName = "AKBANK T.A.S.",
+                FriendlyNameSave = true,
+                FriendlyName = "Test2",
+                Iban = "iban_number_here"
+            };
+
+            withdrawalMoney = client.WithdrawalMoney(withdrawalModel);
+
+            if (withdrawalMoney != null)
+                PrintWithdrawalMoney(withdrawalMoney);
+
+            var cancelOperation = client.CancelOperation("money_requestid_here");
+
+            Console.WriteLine(cancelOperation);
+
             //// Submit an ask order at 1,000,000 per btc.
             //var order = new Order
             //{
@@ -59,6 +102,52 @@ namespace BTCTrader.APIExample
             //    Console.WriteLine("Order Id: " + order.Id); // Print the reference order ID to console.
 
             Console.ReadLine();
+        }
+
+        private static void PrintDepositMoney(DepositMoneyOutput output)
+        {
+            if (string.IsNullOrEmpty(output.DepositCode)) return;
+            
+            Console.WriteLine(output.Id);
+            Console.WriteLine(output.Amount);
+            Console.WriteLine(output.AccountOwner);
+            if (output.Banks != null)
+                Console.WriteLine(output.Banks.Count);
+            Console.WriteLine(output.CurrencyType);
+            Console.WriteLine(output.DepositCode);
+            Console.WriteLine(output.FirstName);
+            Console.WriteLine(output.LastName);
+        }
+
+        private static void PrintWithdrawalMoney(WithdrawalMoneyOutput output)
+        {
+            if (output.HasBalanceRequest)
+            {
+                Console.WriteLine(output.BalanceRequestId);
+                Console.WriteLine(output.Amount);
+
+                Console.WriteLine(output.BankName);
+                Console.WriteLine(output.HasBalanceRequest);
+                Console.WriteLine(output.Iban);
+            }
+            else
+            {
+                if (output.BankList != null)
+                    foreach (var bank in output.BankList)
+                    {
+                        Console.WriteLine(bank.Key);
+                        Console.WriteLine(bank.Value);
+                        Console.WriteLine("--------------------");
+                    }
+
+                if (output.FriendlyNameList != null)
+                    foreach (var bank in output.FriendlyNameList)
+                    {
+                        Console.WriteLine(bank.Key);
+                        Console.WriteLine(bank.Value);
+                        Console.WriteLine("--------------------");
+                    }   
+            }
         }
     }
 }

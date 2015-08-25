@@ -276,6 +276,86 @@ namespace BTCTrader.APIClient
         }
 
         /// <summary>
+        /// Get the deposit money info
+        /// </summary>
+        /// <returns>The deposit money. Null if there was an error</returns>
+        public DepositMoneyOutput GetDepositMoney()
+        {
+            DepositMoneyOutput result = null;
+
+            var response = SendRequest(HttpVerbs.Get, "api/FundingMoney/DepositMoney", false, true);
+
+            if (response != null)
+                result = JsonConvert.DeserializeObject<DepositMoneyOutput>(response.Content.ReadAsStringAsync().Result);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Send the deposit money request, and return the deposit money request info.
+        /// </summary>
+        /// <returns>If a request is already, return the deposit money info. Null if there was an error</returns>
+        public DepositMoneyOutput DepositMoney(DepositMoneyInput model)
+        {
+            DepositMoneyOutput result = null;
+
+            var response = SendRequest(HttpVerbs.Post, "api/FundingMoney/DepositMoney", model, true);
+
+            if (response != null)
+                result = JsonConvert.DeserializeObject<DepositMoneyOutput>(response.Content.ReadAsStringAsync().Result);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get the withdrawal money info
+        /// </summary>
+        /// <returns>The withdrawal money. Null if there was an error</returns>
+        public WithdrawalMoneyOutput GetWithdrawalMoney()
+        {
+            WithdrawalMoneyOutput result = null;
+
+            var response = SendRequest(HttpVerbs.Get, "api/FundingMoney/WithdrawalMoney", false, true);
+
+            if (response != null)
+                result = JsonConvert.DeserializeObject<WithdrawalMoneyOutput>(response.Content.ReadAsStringAsync().Result);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Send the withdrawal money request, and return the withdrawal money request info.
+        /// </summary>
+        /// <returns>If a request is already, return the withdrawal money info. Null if there was an error</returns>
+        public WithdrawalMoneyOutput WithdrawalMoney(WithdrawalMoneyInput model)
+        {
+            WithdrawalMoneyOutput result = null;
+
+            var response = SendRequest(HttpVerbs.Post, "api/FundingMoney/WithdrawalMoney", model, true);
+
+            if (response != null)
+                result = JsonConvert.DeserializeObject<WithdrawalMoneyOutput>(response.Content.ReadAsStringAsync().Result);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Cancel money requests (Deposit/Withdrawal) with given RequestId
+        /// </summary>
+        /// <returns>True if request was cancelled, false otherwise</returns>
+        public bool CancelOperation(string balanceRequestId)
+        {
+            var result = false;
+
+            var response = SendRequest(HttpVerbs.Post, "api/FundingMoney/CancelOperation?balanceRequestId=" + balanceRequestId, false, true);
+
+            if (response != null)
+                result = JsonConvert.DeserializeObject<bool>(response.Content.ReadAsStringAsync().Result);
+
+            return result;
+        }
+
+        /// <summary>
         /// Get the last trades in the market
         /// </summary>
         /// <returns>Null if there was an error</returns>
