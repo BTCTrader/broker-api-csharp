@@ -11,12 +11,13 @@ namespace BTCTrader.APIClient.Models
         public decimal Bid { get; set; }
         public decimal Ask { get; set; }
         public decimal Open { get; set; }
+        public decimal Average { get; set; }
         public override String ToString()
         {
             return "Last: " + Last + "\n" + "High: " + High + "\n" +
                    "Low: " + Low + "\n" + "Volume: " + Volume + "\n" +
                    "Bid: " + Bid + "\n" + "Ask: " + Ask + "\n" +
-                   "Open: " + Open;
+                   "Open: " + Open + "\n" + "Average: " + Average;
         }
     }
 }
