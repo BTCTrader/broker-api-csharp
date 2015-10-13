@@ -9,7 +9,7 @@ namespace BTCTrader.APIExample
         static void Main() // API Test
         {
             // Alternatively you can set configure these in your web.config or app.config and use the parameterless constructor
-            var client = new ApiClient("yourpublicley", "yourprivatekey", "https://www.btcturk.com");
+            var client = new ApiClient("your_public_key_here", "your_private_key_here", "https://www.btcturk.com");
 
             var ticker = client.GetTicker();
             Console.WriteLine(ticker.ToString()); // Print the ticker to console
@@ -48,11 +48,15 @@ namespace BTCTrader.APIExample
                 Console.WriteLine(trade);
             }
 
+            //Deposit Money
+            //GET
             var depositMoney = client.GetDepositMoney();
 
-            if(depositMoney != null) 
+            if (depositMoney != null)
                 PrintDepositMoney(depositMoney);
 
+            //Deposit Money
+            //POST
             var depositModel = new DepositMoneyInput
             {
                 Amount = 14,
@@ -64,11 +68,17 @@ namespace BTCTrader.APIExample
             if (depositMoney != null)
                 PrintDepositMoney(depositMoney);
 
+
+            //Withdrawal Money
+            //GET
             var withdrawalMoney = client.GetWithdrawalMoney();
 
             if (withdrawalMoney != null)
                 PrintWithdrawalMoney(withdrawalMoney);
 
+
+            //Withdrawal Money
+            //POST
             var withdrawalModel = new WithdrawalMoneyInput
             {
                 Amount = 15,
@@ -77,7 +87,7 @@ namespace BTCTrader.APIExample
                 BankName = "AKBANK T.A.S.",
                 FriendlyNameSave = true,
                 FriendlyName = "Test2",
-                Iban = "iban_number_here"
+                Iban = "Iban_Number_Here"
             };
 
             withdrawalMoney = client.WithdrawalMoney(withdrawalModel);
@@ -85,7 +95,15 @@ namespace BTCTrader.APIExample
             if (withdrawalMoney != null)
                 PrintWithdrawalMoney(withdrawalMoney);
 
-            var cancelOperation = client.CancelOperation("money_requestid_here");
+            //Deposit Money
+            //DELETE
+            var cancelOperation = client.CancelDepositOperation("balance_request_id_here");
+
+            Console.WriteLine(cancelOperation);
+
+            //Withdrawal Money
+            //DELETE
+            cancelOperation = client.CancelWithdrawalOperation("balance_request_id_here");
 
             Console.WriteLine(cancelOperation);
 

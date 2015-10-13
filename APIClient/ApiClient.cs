@@ -61,6 +61,9 @@ namespace BTCTrader.APIClient
                         case HttpVerbs.Get:
                             response = client.GetAsync(requestUri).Result;
                             break;
+                        case HttpVerbs.Delete:
+                            response = client.DeleteAsync(requestUri).Result;
+                            break;
                     }
                 }
                 catch (Exception ex)
@@ -283,7 +286,7 @@ namespace BTCTrader.APIClient
         {
             DepositMoneyOutput result = null;
 
-            var response = SendRequest(HttpVerbs.Get, "api/FundingMoney/DepositMoney", false, true);
+            var response = SendRequest(HttpVerbs.Get, "api/DepositMoney", false, true);
 
             if (response != null)
                 result = JsonConvert.DeserializeObject<DepositMoneyOutput>(response.Content.ReadAsStringAsync().Result);
@@ -299,7 +302,7 @@ namespace BTCTrader.APIClient
         {
             DepositMoneyOutput result = null;
 
-            var response = SendRequest(HttpVerbs.Post, "api/FundingMoney/DepositMoney", model, true);
+            var response = SendRequest(HttpVerbs.Post, "api/DepositMoney", model, true);
 
             if (response != null)
                 result = JsonConvert.DeserializeObject<DepositMoneyOutput>(response.Content.ReadAsStringAsync().Result);
@@ -315,7 +318,7 @@ namespace BTCTrader.APIClient
         {
             WithdrawalMoneyOutput result = null;
 
-            var response = SendRequest(HttpVerbs.Get, "api/FundingMoney/WithdrawalMoney", false, true);
+            var response = SendRequest(HttpVerbs.Get, "api/WithdrawalMoney", false, true);
 
             if (response != null)
                 result = JsonConvert.DeserializeObject<WithdrawalMoneyOutput>(response.Content.ReadAsStringAsync().Result);
@@ -331,7 +334,7 @@ namespace BTCTrader.APIClient
         {
             WithdrawalMoneyOutput result = null;
 
-            var response = SendRequest(HttpVerbs.Post, "api/FundingMoney/WithdrawalMoney", model, true);
+            var response = SendRequest(HttpVerbs.Post, "api/WithdrawalMoney", model, true);
 
             if (response != null)
                 result = JsonConvert.DeserializeObject<WithdrawalMoneyOutput>(response.Content.ReadAsStringAsync().Result);
@@ -340,14 +343,30 @@ namespace BTCTrader.APIClient
         }
 
         /// <summary>
-        /// Cancel money requests (Deposit/Withdrawal) with given RequestId
+        /// Cancel money requests Deposit with given RequestId
         /// </summary>
         /// <returns>True if request was cancelled, false otherwise</returns>
-        public bool CancelOperation(string balanceRequestId)
+        public bool CancelDepositOperation(string balanceRequestId)
         {
             var result = false;
 
-            var response = SendRequest(HttpVerbs.Post, "api/FundingMoney/CancelOperation?balanceRequestId=" + balanceRequestId, false, true);
+            var response = SendRequest(HttpVerbs.Delete, "api/DepositMoney/CancelOperation?balanceRequestId=" + balanceRequestId, false, true);
+
+            if (response != null)
+                result = JsonConvert.DeserializeObject<bool>(response.Content.ReadAsStringAsync().Result);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Cancel money requests Withdrawal with given RequestId
+        /// </summary>
+        /// <returns>True if request was cancelled, false otherwise</returns>
+        public bool CancelWithdrawalOperation(string balanceRequestId)
+        {
+            var result = false;
+
+            var response = SendRequest(HttpVerbs.Delete, "api/WithdrawalMoney/CancelOperation?balanceRequestId=" + balanceRequestId, false, true);
 
             if (response != null)
                 result = JsonConvert.DeserializeObject<bool>(response.Content.ReadAsStringAsync().Result);
@@ -405,6 +424,7 @@ namespace BTCTrader.APIClient
         {
             Get,
             Post,
+            Delete
         }
     }
 }
