@@ -114,7 +114,7 @@ namespace BTCTrader.APIClient
         /// </summary>
         /// <param name="order">Order to be submitted</param>
         /// <returns>True if Order is submitted successfully, false if it was not.</returns>
-        private bool SubmitOrder(ref Order order)
+        public bool SubmitOrder(ref Order order)
         {
             var result = false;
             var method = order.Type == Order.BuyOrder ? "api/buy" : "api/sell";
