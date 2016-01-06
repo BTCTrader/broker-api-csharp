@@ -206,6 +206,26 @@ namespace BTCTrader.APIClient
         }
 
         /// <summary>
+        /// Get the authenticated account's latest 25 transactions descending. Includes all balance changes. Buys, sells, deposits, withdrawals and fees.
+        /// </summary>
+        /// <returns>A list of object type UserTransOutput. Null if user tranasctions cannot be retreived </returns>
+        public IList<UserTransOutput> GetUserTransactions()
+        {
+            IList<UserTransOutput> result = null;
+            const string requestUri = "api/usertransactions";
+            
+            var response = SendRequest(HttpVerbs.Get, requestUri, false, true);
+
+            if (response != null)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
+                result = JsonConvert.DeserializeObject<UserTransOutput[]>(content);
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Cancels order with given OrderId
         /// </summary>
         /// <returns>True if order was cancelled, false otherwise</returns>

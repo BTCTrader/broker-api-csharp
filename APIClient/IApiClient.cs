@@ -9,6 +9,7 @@ namespace BTCTrader.APIClient
         AccountBalance GetAccountBalance();
         IList<Order> GetOpenOrders();
         IList<UserTransOutput> GetUserTransactions(int limit, int offset, bool ascending);
+        IList<UserTransOutput> GetUserTransactions();
         bool CancelOrder(Order order);
         IList<Trades> GetLastTrades(int last = 0);
     }
