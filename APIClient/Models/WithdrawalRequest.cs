@@ -2,7 +2,7 @@
 
 namespace BTCTrader.APIClient.Models
 {
-    public class WithdrawalMoneyInput
+    public class WithdrawalRequest
     {
         [JsonProperty("iban")]
         public string Iban { get; set; }
@@ -14,10 +14,10 @@ namespace BTCTrader.APIClient.Models
         public bool FriendlyNameSave { get; set; }
 
         [JsonProperty("amount")]
-        public uint Amount { get; set; }
+        public string Amount { get; set; }
 
         [JsonProperty("amount_precision")]
-        public uint AmountPrecision { get; set; }
+        public string AmountPrecision { get; set; }
 
         [JsonProperty("has_balance_request")]
         public bool HasBalanceRequest { get; set; }
@@ -30,5 +30,11 @@ namespace BTCTrader.APIClient.Models
 
         [JsonProperty("bank_name")]
         public string BankName { get; set; }
+
+        [JsonProperty("first_name")]
+        public string FirstName { get; set; }
+
+        [JsonProperty("last_name")]
+        public string LastName { get; set; }
     }
 }

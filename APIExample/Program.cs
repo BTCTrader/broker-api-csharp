@@ -4,27 +4,47 @@ using BTCTrader.APIClient.Models;
 
 namespace BTCTrader.APIExample
 {
-    class Program
+    /// <summary>
+    /// Shows the usage of the APIClient with various examples.
+    /// </summary>
+    internal class Program
     {
-        static void Main() // API Test
+        private static void Main()
         {
             // Alternatively you can set configure these in your web.config or app.config and use the parameterless constructor
-            var client = new ApiClient("56a1f9bb67cab12dd8948db9", "ez4cCmRDZLrS6xei5LxtlQn182adtLDQ", "https://www.btcturk.com");
+            var client = new ApiClient("PUBLIC KEY", "PRIVATE KEY", "https://www.btcturk.com/");
 
+            // Print the ticker to the console
             var ticker = client.GetTicker();
-            Console.WriteLine(ticker.ToString()); // Print the ticker to console
+            Console.WriteLine(ticker.ToString());
 
+            // Print the best bid price and amount to the console
             var orderbook = client.GetOrderBook();
-
             var bestBidPrice = orderbook.Bids[0][0];
             var bestBidAmount = orderbook.Bids[0][1];
-            Console.WriteLine("Best bid price:" + bestBidPrice); // Print the best bid price and amount to console
+            Console.WriteLine("Best bid price:" + bestBidPrice);
             Console.WriteLine("Best bid amount:" + bestBidAmount);
 
+            // Print the best ask price and amount to the console
             var bestAskPrice = orderbook.Asks[0][0];
             var bestAskAmount = orderbook.Asks[0][1];
-            Console.WriteLine("Best ask price:" + bestAskPrice); // Print the best ask price and amount to console
+            Console.WriteLine("Best ask price:" + bestAskPrice);
             Console.WriteLine("Best ask amount:" + bestAskAmount);
+
+            // Print the last 10 trades in the market to the console.
+            var trades = client.GetLastTrades(10);
+            Console.WriteLine("Last 10 trades in the market");
+            foreach (var trade in trades)
+            {
+                Console.WriteLine(trade);
+            }
+
+            // Print the last 7 days' OHLC to the console
+            var ohlc = client.GetDailyOHLC(7);
+            foreach (var dailyOhlc in ohlc)
+            {
+                Console.WriteLine(dailyOhlc);
+            }
 
             // BELOW THIS LINE REQUIRES AUTHENTICATION
             var accountBalance = client.GetAccountBalance();
@@ -42,47 +62,42 @@ namespace BTCTrader.APIExample
                 Console.WriteLine("I don't have any open orders");
             }
 
-            var trades = client.GetLastTrades(50);
-            foreach (var trade in trades)
+            //Deposit Money
+            //GET
+            var depositRequestResult = client.GetDepositRequest();
+            if (depositRequestResult != null)
             {
-                Console.WriteLine(trade);
+                PrintDepositMoney(depositRequestResult);
             }
 
             //Deposit Money
-            //GET
-            var depositMoney = client.GetDepositMoney();
-
-            if (depositMoney != null)
-                PrintDepositMoney(depositMoney);
-
-            //Deposit Money
             //POST
-            var depositModel = new DepositMoneyInput
+            var depositRequest = new DepositRequest
             {
-                Amount = 14,
-                AmountPrecision = 0
+                Amount = "14",
+                AmountPrecision = "0"
             };
 
-            depositMoney = client.DepositMoney(depositModel);
-
-            if (depositMoney != null)
-                PrintDepositMoney(depositMoney);
-
+            depositRequestResult = client.MakeDepositRequest(depositRequest);
+            if (depositRequestResult != null)
+            {
+                PrintDepositMoney(depositRequestResult);
+            }
 
             //Withdrawal Money
             //GET
-            var withdrawalMoney = client.GetWithdrawalMoney();
-
-            if (withdrawalMoney != null)
-                PrintWithdrawalMoney(withdrawalMoney);
-
+            var existingWithdrawalRequest = client.GetWithdrawalRequest();
+            if (existingWithdrawalRequest != null)
+            {
+                PrintWithdrawalMoney(existingWithdrawalRequest);
+            }
 
             //Withdrawal Money
             //POST
-            var withdrawalModel = new WithdrawalMoneyInput
+            var withdrawalRequest = new WithdrawalRequest
             {
-                Amount = 15,
-                AmountPrecision = 0,
+                Amount = "15",
+                AmountPrecision = "0",
                 BankId = "51c41f6349ede8108423f00a",
                 BankName = "AKBANK T.A.S.",
                 FriendlyNameSave = true,
@@ -90,54 +105,61 @@ namespace BTCTrader.APIExample
                 Iban = "Iban_Number_Here"
             };
 
-            withdrawalMoney = client.WithdrawalMoney(withdrawalModel);
-
-            if (withdrawalMoney != null)
-                PrintWithdrawalMoney(withdrawalMoney);
+            existingWithdrawalRequest = client.MakeWithdrawalRequest(withdrawalRequest);
+            if (existingWithdrawalRequest != null)
+            {
+                PrintWithdrawalMoney(existingWithdrawalRequest);
+            }
 
             //Deposit Money
             //DELETE
-            var cancelOperation = client.CancelDepositOperation("balance_request_id_here");
+            var cancelOperation = client.CancelDepositRequest("balance_request_id_here");
 
             Console.WriteLine(cancelOperation);
 
             //Withdrawal Money
             //DELETE
-            cancelOperation = client.CancelWithdrawalOperation("balance_request_id_here");
-
+            cancelOperation = client.CancelWithdrawalRequest("balance_request_id_here");
             Console.WriteLine(cancelOperation);
 
-            //// Submit an ask order at 1,000,000 per btc.
-            //var order = new Order
-            //{
-            //    Price = 657m,
-            //    Amount = 1000000m,
-            //    Type = Order.SellOrder,
-            //    IsMarketOrder = 0
-            //};
-
-            //if (client.SubmitOrder(ref order))
-            //    Console.WriteLine("Order Id: " + order.Id); // Print the reference order ID to console.
+            // Submit an ask order at 1,000,000 per btc and print the received order ID to the console.
+            var order = new Order
+            {
+                Price = 657m,
+                Amount = 1000000m,
+                Type = Order.SellOrder,
+                IsMarketOrder = 0
+            };
+            
+            if (client.SubmitOrder(ref order))
+            {
+                Console.WriteLine("The submitted order was assigned the Id: " + order.Id); 
+            }
 
             Console.ReadLine();
         }
 
-        private static void PrintDepositMoney(DepositMoneyOutput output)
+        private static void PrintDepositMoney(DepositRequestResult output)
         {
             if (string.IsNullOrEmpty(output.DepositCode)) return;
-            
+
             Console.WriteLine(output.Id);
             Console.WriteLine(output.Amount);
             Console.WriteLine(output.AccountOwner);
-            if (output.Banks != null)
-                Console.WriteLine(output.Banks.Count);
+
+            foreach (var bankAccount in output.Banks)
+            {
+                Console.WriteLine(bankAccount.BankName);
+                Console.WriteLine(bankAccount.Iban);
+            }
+
             Console.WriteLine(output.CurrencyType);
             Console.WriteLine(output.DepositCode);
             Console.WriteLine(output.FirstName);
             Console.WriteLine(output.LastName);
         }
 
-        private static void PrintWithdrawalMoney(WithdrawalMoneyOutput output)
+        private static void PrintWithdrawalMoney(WithdrawalRequestInfo output)
         {
             if (output.HasBalanceRequest)
             {
@@ -164,7 +186,7 @@ namespace BTCTrader.APIExample
                         Console.WriteLine(bank.Key);
                         Console.WriteLine(bank.Value);
                         Console.WriteLine("--------------------");
-                    }   
+                    }
             }
         }
     }

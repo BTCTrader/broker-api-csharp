@@ -26,7 +26,7 @@ namespace BTCTrader.APIClient.Models
         [JsonProperty("fee_percentage")]
         public decimal FeePercentage { get; set; }
 
-        public override String ToString()
+        public override string ToString()
         {
             return "Money Balance: " + MoneyBalance + "\n" + "Bitcoin Balance: " + BitcoinBalance + "\n" +
                    "Money Reserved: " + MoneyReserved + "\n" + "Bitcoin Reserved: " + BitcoinReserved;

@@ -36,13 +36,13 @@ namespace BTCTrader.APIClient
         /// Sets request headers and base uri and returns an HTTP client which can be used to make authenticated requests.
         /// </summary>
         /// <returns>HttpClient with necessary authentication headers set.</returns>
-        private HttpResponseMessage SendRequest<T>(HttpVerbs method, string requestUri, T value, bool requireAuthenticate)
+        private HttpResponseMessage SendRequest<T>(HttpVerbs method, string requestUri, T value, bool requiresAuthentication)
         {
             HttpResponseMessage response = null;
 
             using (var client = new HttpClient { BaseAddress = new Uri(_baseUrl), Timeout = TimeSpan.FromSeconds(30) })
             {
-                if (requireAuthenticate)
+                if (requiresAuthentication)
                 {
                     client.DefaultRequestHeaders.Add("X-PCK", _publicKey);
                     var stamp = GetStamp();
@@ -72,10 +72,14 @@ namespace BTCTrader.APIClient
                     response = null;
                 }
 
-                if (response != null)
+                if (response == null)
                 {
-                    if (!RequestSucceeded(response))
-                        response = null;
+                    return null;
+                }
+
+                if (!RequestSucceeded(response))
+                {
+                    return null;
                 }
             }
 
@@ -91,10 +95,10 @@ namespace BTCTrader.APIClient
 
         private string GetSignature(long stamp)
         {
-            String signature = null;
+            string signature = null;
             try
             {
-                var data = String.Format("{0}{1}", _publicKey, stamp);
+                var data = $"{_publicKey}{stamp}";
                 using (var hmac = new HMACSHA256(Convert.FromBase64String(_privateKey)))
                 {
                     var signatureBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
@@ -116,19 +120,19 @@ namespace BTCTrader.APIClient
         /// <returns>True if Order is submitted successfully, false if it was not.</returns>
         public bool SubmitOrder(ref Order order)
         {
-            var result = false;
             var method = order.Type == Order.BuyOrder ? "api/buy" : "api/sell";
             order.Price = Math.Round(order.Price, 2);
             var response = SendRequest(HttpVerbs.Post, method, order, true);
 
-            if (response != null)
+            if (response == null)
             {
-                var myOrder = JsonConvert.DeserializeObject<Order>(response.Content.ReadAsStringAsync().Result);
-                order = myOrder;
-                result = true;
+                return false;
             }
 
-            return result;
+            var myOrder = JsonConvert.DeserializeObject<Order>(response.Content.ReadAsStringAsync().Result);
+            order = myOrder;
+
+            return true;
         }
 
         /// <summary>
@@ -213,7 +217,7 @@ namespace BTCTrader.APIClient
         {
             IList<UserTransOutput> result = null;
             const string requestUri = "api/usertransactions";
-            
+
             var response = SendRequest(HttpVerbs.Get, requestUri, false, true);
 
             if (response != null)
@@ -248,7 +252,9 @@ namespace BTCTrader.APIClient
             var orders = GetOpenOrders();
 
             if (orders == null)
+            {
                 return;
+            }
 
             foreach (var order in orders)
             {
@@ -265,7 +271,9 @@ namespace BTCTrader.APIClient
             IList<Order> result = null;
             var response = SendRequest(HttpVerbs.Get, "api/openOrders", false, true);
             if (response != null)
+            {
                 result = JsonConvert.DeserializeObject<IList<Order>>(response.Content.ReadAsStringAsync().Result);
+            }
 
             return result;
         }
@@ -279,7 +287,26 @@ namespace BTCTrader.APIClient
             Ticker result = null;
             var response = SendRequest(HttpVerbs.Get, "api/ticker", false, false);
             if (response != null)
+            {
                 result = JsonConvert.DeserializeObject<Ticker>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get the daily open, high, low, close, average etc. data in the market 
+        /// </summary>v
+        /// <param name="days">The number of days to request</param>
+        /// <returns>The OHLC data for the last given number of days</returns>
+        public IList<OHLC> GetDailyOHLC(int days)
+        {
+            IList<OHLC> result = null;
+            var response = SendRequest(HttpVerbs.Get, "api/ohlcdata?last="+days, false, false);
+            if (response != null)
+            {
+                result = JsonConvert.DeserializeObject<IList<OHLC>>(response.Content.ReadAsStringAsync().Result);
+            }
 
             return result;
         }
@@ -293,7 +320,9 @@ namespace BTCTrader.APIClient
             OrderBook result = null;
             var response = SendRequest(HttpVerbs.Get, "api/orderbook", false, false);
             if (response != null)
+            {
                 result = JsonConvert.DeserializeObject<OrderBook>(response.Content.ReadAsStringAsync().Result);
+            }
 
             return result;
         }
@@ -302,14 +331,15 @@ namespace BTCTrader.APIClient
         /// Get the deposit money info
         /// </summary>
         /// <returns>The deposit money. Null if there was an error</returns>
-        public DepositMoneyOutput GetDepositMoney()
+        public DepositRequestResult GetDepositRequest()
         {
-            DepositMoneyOutput result = null;
+            DepositRequestResult result = null;
 
             var response = SendRequest(HttpVerbs.Get, "api/DepositMoney", false, true);
-
             if (response != null)
-                result = JsonConvert.DeserializeObject<DepositMoneyOutput>(response.Content.ReadAsStringAsync().Result);
+            {
+                result = JsonConvert.DeserializeObject<DepositRequestResult>(response.Content.ReadAsStringAsync().Result);
+            }
 
             return result;
         }
@@ -318,46 +348,15 @@ namespace BTCTrader.APIClient
         /// Send the deposit money request, and return the deposit money request info.
         /// </summary>
         /// <returns>If a request is already, return the deposit money info. Null if there was an error</returns>
-        public DepositMoneyOutput DepositMoney(DepositMoneyInput model)
+        public DepositRequestResult MakeDepositRequest(DepositRequest model)
         {
-            DepositMoneyOutput result = null;
+            DepositRequestResult result = null;
 
             var response = SendRequest(HttpVerbs.Post, "api/DepositMoney", model, true);
-
             if (response != null)
-                result = JsonConvert.DeserializeObject<DepositMoneyOutput>(response.Content.ReadAsStringAsync().Result);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Get the withdrawal money info
-        /// </summary>
-        /// <returns>The withdrawal money. Null if there was an error</returns>
-        public WithdrawalMoneyOutput GetWithdrawalMoney()
-        {
-            WithdrawalMoneyOutput result = null;
-
-            var response = SendRequest(HttpVerbs.Get, "api/WithdrawalMoney", false, true);
-
-            if (response != null)
-                result = JsonConvert.DeserializeObject<WithdrawalMoneyOutput>(response.Content.ReadAsStringAsync().Result);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Send the withdrawal money request, and return the withdrawal money request info.
-        /// </summary>
-        /// <returns>If a request is already, return the withdrawal money info. Null if there was an error</returns>
-        public WithdrawalMoneyOutput WithdrawalMoney(WithdrawalMoneyInput model)
-        {
-            WithdrawalMoneyOutput result = null;
-
-            var response = SendRequest(HttpVerbs.Post, "api/WithdrawalMoney", model, true);
-
-            if (response != null)
-                result = JsonConvert.DeserializeObject<WithdrawalMoneyOutput>(response.Content.ReadAsStringAsync().Result);
+            {
+                result = JsonConvert.DeserializeObject<DepositRequestResult>(response.Content.ReadAsStringAsync().Result);
+            }
 
             return result;
         }
@@ -366,14 +365,15 @@ namespace BTCTrader.APIClient
         /// Cancel money requests Deposit with given RequestId
         /// </summary>
         /// <returns>True if request was cancelled, false otherwise</returns>
-        public bool CancelDepositOperation(string balanceRequestId)
+        public bool CancelDepositRequest(string balanceRequestId)
         {
             var result = false;
 
             var response = SendRequest(HttpVerbs.Delete, "api/DepositMoney/CancelOperation?balanceRequestId=" + balanceRequestId, false, true);
-
             if (response != null)
+            {
                 result = JsonConvert.DeserializeObject<bool>(response.Content.ReadAsStringAsync().Result);
+            }
 
             return result;
         }
@@ -382,31 +382,87 @@ namespace BTCTrader.APIClient
         /// Cancel money requests Withdrawal with given RequestId
         /// </summary>
         /// <returns>True if request was cancelled, false otherwise</returns>
-        public bool CancelWithdrawalOperation(string balanceRequestId)
+        public bool CancelWithdrawalRequest(string balanceRequestId)
         {
             var result = false;
 
             var response = SendRequest(HttpVerbs.Delete, "api/WithdrawalMoney/CancelOperation?balanceRequestId=" + balanceRequestId, false, true);
-
             if (response != null)
+            {
                 result = JsonConvert.DeserializeObject<bool>(response.Content.ReadAsStringAsync().Result);
+            }
 
             return result;
         }
 
         /// <summary>
-        /// Get the last trades in the market
+        /// Get the withdrawal money info
         /// </summary>
-        /// <returns>Null if there was an error</returns>
-        public IList<Trades> GetLastTrades(int last = 0)
+        /// <returns>The withdrawal money. Null if there was an error</returns>
+        public WithdrawalRequestInfo GetWithdrawalRequest()
+        {
+            WithdrawalRequestInfo result = null;
+
+            var response = SendRequest(HttpVerbs.Get, "api/WithdrawalMoney", false, true);
+            if (response != null)
+            {
+                result = JsonConvert.DeserializeObject<WithdrawalRequestInfo>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Send the withdrawal money request, and return the withdrawal money request info.
+        /// </summary>
+        /// <returns>If a request is already, return the withdrawal money info. Null if there was an error</returns>
+        public WithdrawalRequestInfo MakeWithdrawalRequest(WithdrawalRequest model)
+        {
+            WithdrawalRequestInfo result = null;
+
+            var response = SendRequest(HttpVerbs.Post, "api/WithdrawalMoney", model, true);
+            if (response != null)
+            {
+                result = JsonConvert.DeserializeObject<WithdrawalRequestInfo>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get the last trades in the market.
+        /// </summary>
+        /// <param name="numberOfTrades">The number of trades that will be requested.</param>
+        /// <returns>The requested number of last trades in the market.</returns>
+        public IList<Trades> GetLastTrades(int numberOfTrades)
         {
             IList<Trades> result = null;
-            var url = "api/trades";
-            if (last != 0)
-                url = url + "?last=" + last;
+            var url = "api/trades?last=" + numberOfTrades;
+
             var response = SendRequest(HttpVerbs.Get, url, false, false);
             if (response != null)
+            {
                 result = JsonConvert.DeserializeObject<IList<Trades>>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get the last trades in the market since a given trade id.
+        /// </summary>
+        /// <param name="tradeId">The trade id</param>
+        /// <returns>All trades since the given trade id.</returns>
+        public IList<Trades> GetLastTradesSinceTradeId(string tradeId)
+        {
+            IList<Trades> result = null;
+            var url = "api/trades?since=" + tradeId;
+
+            var response = SendRequest(HttpVerbs.Get, url, false, false);
+            if (response != null)
+            {
+                result = JsonConvert.DeserializeObject<IList<Trades>>(response.Content.ReadAsStringAsync().Result);
+            }
 
             return result;
         }

@@ -3,7 +3,10 @@ using Newtonsoft.Json;
 
 namespace BTCTrader.APIClient.Models
 {
-    public class WithdrawalMoneyOutput
+    /// <summary>
+    /// Model for existing withdrawal requests and info model for withdrawal requests
+    /// </summary>
+    public class WithdrawalRequestInfo
     {
         [JsonProperty("iban")]
         public string Iban { get; set; }
@@ -25,5 +28,11 @@ namespace BTCTrader.APIClient.Models
 
         [JsonProperty("balance_request_id")]
         public string BalanceRequestId { get; set; }
+
+        [JsonProperty("first_name")]
+        public string FirstName { get; set; }
+
+        [JsonProperty("last_name")]
+        public string LastName { get; set; }
     }
 }

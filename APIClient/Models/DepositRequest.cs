@@ -2,12 +2,12 @@
 
 namespace BTCTrader.APIClient.Models
 {
-    public class DepositMoneyInput
+    public class DepositRequest
     {
         [JsonProperty("amount")]
-        public uint Amount { get; set; }
+        public string Amount { get; set; }
 
         [JsonProperty("amount_precision")]
-        public uint AmountPrecision { get; set; }
+        public string AmountPrecision { get; set; }
     }
 }

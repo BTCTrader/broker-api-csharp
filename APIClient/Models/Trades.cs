@@ -10,14 +10,14 @@ namespace BTCTrader.APIClient.Models
         [JsonProperty("tid")]
         public string Tid { get; set; }
         [JsonProperty("price")]
-        public Decimal Price { get; set; }
+        public decimal Price { get; set; }
         [JsonProperty("amount")]
-        public Decimal Amount { get; set; }
+        public decimal Amount { get; set; }
 
         public override string ToString()
         {
             return "Date: " + Date + "\n" + "Tid: " + Tid + "\n" +
-                "Price: " + Price + "\n" + "Amount: " + Amount + "\n";
+                "Price: " + Price + "\n" + "Amount: " + Amount;
         }
     }
 }

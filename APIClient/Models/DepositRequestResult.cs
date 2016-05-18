@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace BTCTrader.APIClient.Models
 {
-    public class DepositMoneyOutput
+    public class DepositRequestResult
     {
         [JsonProperty("id")]
         public string Id { get; set; }
