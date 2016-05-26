@@ -127,7 +127,7 @@ namespace BTCTrader.APIExample
             {
                 Price = 657m,
                 Amount = 1000000m,
-                Type = Order.SellOrder,
+                Type = Order.Ask,
                 IsMarketOrder = 0
             };
             

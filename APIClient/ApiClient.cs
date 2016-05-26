@@ -120,7 +120,7 @@ namespace BTCTrader.APIClient
         /// <returns>True if Order is submitted successfully, false if it was not.</returns>
         public bool SubmitOrder(ref Order order)
         {
-            var method = order.Type == Order.BuyOrder ? "api/buy" : "api/sell";
+            var method = order.Type == Order.Bid ? "api/buy" : "api/sell";
             order.Price = Math.Round(order.Price, 2);
             var response = SendRequest(HttpVerbs.Post, method, order, true);
 
@@ -145,7 +145,7 @@ namespace BTCTrader.APIClient
             var order = new Order
             {
                 IsMarketOrder = 1,
-                Type = Order.SellOrder,
+                Type = Order.Ask,
                 Amount = accountBalance.BitcoinAvailable,
             };
 
@@ -162,7 +162,7 @@ namespace BTCTrader.APIClient
             var order = new Order
             {
                 IsMarketOrder = 1,
-                Type = Order.BuyOrder,
+                Type = Order.Bid,
                 Total = accountBalance.MoneyAvailable,
             };
 
