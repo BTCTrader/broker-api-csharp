@@ -1,0 +1,31 @@
+﻿<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>BTCTrader.APIClient</id>
+    <version>1.2.7</version>
+    <licenseUrl>https://github.com/BTCTrader/broker-api-csharp#license</licenseUrl>
+    <projectUrl>https://github.com/BTCTrader/broker-api-csharp</projectUrl>
+    <authors>BTCTrader Development</authors>
+    <owners>BTCTrader</owners>
+    <description>
+      C# client for the broker API of BTCTrader. You can use this client to connect to the APIs of BTCTrader partners.
+    </description>
+    <copyright>Copyright BTCTrader</copyright>
+    <language>en-US</language>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="9.0.1"/>
+      <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.3" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Debug\BTCTrader.APIClient.dll" target="lib\net451" />
+    <file src="bin\Debug\BTCTrader.APIClient.dll" target="lib\net452" />
+    <file src="bin\Debug\BTCTrader.APIClient.dll" target="lib\net46" />
+    <file src="bin\Debug\BTCTrader.APIClient.dll" target="lib\net461" />
+
+    <file src="bin\Debug\BTCTrader.APIClient.pdb" target="lib\net451" />
+    <file src="bin\Debug\BTCTrader.APIClient.pdb" target="lib\net452" />
+    <file src="bin\Debug\BTCTrader.APIClient.pdb" target="lib\net46" />
+    <file src="bin\Debug\BTCTrader.APIClient.pdb" target="lib\net461" />
+  </files>
+</package>
