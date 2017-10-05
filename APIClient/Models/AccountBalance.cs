@@ -4,31 +4,33 @@ namespace BTCTrader.APIClient.Models
 {
     public class AccountBalance
     {
-        [JsonProperty("money_balance")]
-        public decimal MoneyBalance { get; set; }
+        [JsonProperty("denominator_balance")]
+        public decimal DenominatorBalance { get; set; }
 
-        [JsonProperty("bitcoin_balance")]
-        public decimal BitcoinBalance { get; set; }
+        [JsonProperty("numerator_balance")]
+        public decimal NumeratorBalance { get; set; }
 
-        [JsonProperty("money_reserved")]
-        public decimal MoneyReserved { get; set; }
+        [JsonProperty("denominator_reserved")]
+        public decimal DenominatorReserved { get; set; }
 
-        [JsonProperty("bitcoin_reserved")]
-        public decimal BitcoinReserved { get; set; }
+        [JsonProperty("numerator_reserved")]
+        public decimal NumeratorReserved { get; set; }
 
-        [JsonProperty("money_available")]
-        public decimal MoneyAvailable { get; set; }
+        [JsonProperty("denominator_available")]
+        public decimal DenominatorAvailable { get; set; }
 
-        [JsonProperty("bitcoin_available")]
-        public decimal BitcoinAvailable { get; set; }
+        [JsonProperty("numerator_available")]
+        public decimal NumeratorAvailable { get; set; }
 
         [JsonProperty("fee_percentage")]
         public decimal FeePercentage { get; set; }
 
+        public string PairSymbol { get; set; }
         public override string ToString()
         {
-            return "Money Balance: " + MoneyBalance + "\n" + "Bitcoin Balance: " + BitcoinBalance + "\n" +
-                   "Money Reserved: " + MoneyReserved + "\n" + "Bitcoin Reserved: " + BitcoinReserved;
+            return "Denominator Balance: " + DenominatorBalance + "\n" + "Numerator Balance: " + NumeratorBalance + "\n" +
+                   "Denominator Reserved: " + DenominatorReserved + "\n" + "Numerator Reserved: " + NumeratorReserved + "\n" +
+                   "Pair Symbol: " + PairSymbol;
         }
     }
 }

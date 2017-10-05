@@ -14,11 +14,11 @@ namespace BTCTrader.APIClient.Models
         [JsonProperty("Operation")]
         public string Operation { get; set; } // Operation name
 
-        [JsonProperty("Btc")]
-        public decimal Btc{get;set;}
+        [JsonProperty("Numerator")]
+        public decimal Numerator{get;set;}
 
-        [JsonProperty("Currency")]
-        public decimal Currency { get; set; }
+        [JsonProperty("Denominator")]
+        public decimal Denominator { get; set; }
 
         [JsonProperty("Price")]
         public decimal Price { get; set; }

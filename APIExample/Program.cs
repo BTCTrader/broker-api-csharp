@@ -1,58 +1,72 @@
 ﻿using System;
-using BTCTrader.APIClient;
-using BTCTrader.APIClient.Models;
 
 namespace BTCTrader.APIExample
 {
+    using BTCTrader.APIClient;
+    using BTCTrader.APIClient.Models;
+
     /// <summary>
     /// Shows the usage of the APIClient with various examples.
     /// </summary>
     internal class Program
     {
+        public const string PAIRSYMBOL = "ETHBTC";
         private static void Main()
         {
             // Alternatively you can set configure these in your web.config or app.config and use the parameterless constructor
-            var client = new ApiClient("PUBLIC KEY", "PRIVATE KEY", "https://www.btcturk.com/");
+            var client = new ApiClient("9a25e99d-cef4-4123-845d-b6f0809ab6f8", "2oyMG0N1zKOLRrFBIYjEA+T/BEMrRpmP", "http://localhost:30006/");
 
-            // Print the ticker to the console
-            var ticker = client.GetTicker();
+
+            var order1 = new Order
+                             {
+                                 PairSymbol = PAIRSYMBOL,
+                                 Amount = 0.01m,
+                                 IsMarketOrder = 0,
+                                 Type = Order.Bid,
+                                 Price = 0.031m
+                             };
+
+            var result = client.SubmitOrder(ref order1);
+
+            // Print the ticker to the Console
+            var ticker = client.GetTicker(PAIRSYMBOL);
             Console.WriteLine(ticker.ToString());
 
-            // Print the best bid price and amount to the console
-            var orderbook = client.GetOrderBook();
+            // Print the best bid price and amount to the Console
+            var orderbook = client.GetOrderBook(PAIRSYMBOL);
             var bestBidPrice = orderbook.Bids[0][0];
             var bestBidAmount = orderbook.Bids[0][1];
             Console.WriteLine("Best bid price:" + bestBidPrice);
             Console.WriteLine("Best bid amount:" + bestBidAmount);
 
-            // Print the best ask price and amount to the console
+            // Print the best ask price and amount to the Console
             var bestAskPrice = orderbook.Asks[0][0];
             var bestAskAmount = orderbook.Asks[0][1];
             Console.WriteLine("Best ask price:" + bestAskPrice);
             Console.WriteLine("Best ask amount:" + bestAskAmount);
 
-            // Print the last 10 trades in the market to the console.
-            var trades = client.GetLastTrades(10);
+            // Print the last 10 trades in the market to the Console.
+            var trades = client.GetLastTrades(PAIRSYMBOL, 10);
             Console.WriteLine("Last 10 trades in the market");
-            foreach (var trade in trades)
+            foreach(var trade in trades)
             {
                 Console.WriteLine(trade);
             }
 
-            // Print the last 7 days' OHLC to the console
-            var ohlc = client.GetDailyOHLC(7);
-            foreach (var dailyOhlc in ohlc)
-            {
-                Console.WriteLine(dailyOhlc);
-            }
+            // Print the last 7 days' OHLC to the Console
+            //var ohlc = client.GetDailyOHLC(7);
+            //foreach(var dailyOhlc in ohlc)
+            //{
+            //    Console.WriteLine(dailyOhlc);
+            //}
 
             // BELOW THIS LINE REQUIRES AUTHENTICATION
-            var accountBalance = client.GetAccountBalance();
-            Console.WriteLine("My total Bitcoin: " + accountBalance.BitcoinBalance); // Print my bitcoin balance to console
-            Console.WriteLine("My total money: " + accountBalance.MoneyBalance);
+            var accountBalance = client.GetAccountBalance(PAIRSYMBOL);
+            Console.WriteLine($"My total {PAIRSYMBOL.Substring(0,3)} : {accountBalance.NumeratorBalance}"); // Print my bitcoin balance to Console
+            Console.WriteLine($"My total {PAIRSYMBOL.Substring(3, 3)} : {accountBalance.DenominatorBalance}");
 
-            var openorOrders = client.GetOpenOrders();
-            if (openorOrders.Count != 0)
+            var openorOrders = client.GetOpenOrders(PAIRSYMBOL);
+            if(openorOrders.Count != 0)
             {
                 Console.WriteLine("I have some open orders");
                 client.CancelOrder(openorOrders[0]); // Cancel one of my open orders
@@ -65,7 +79,7 @@ namespace BTCTrader.APIExample
             //Deposit Money
             //GET
             var depositRequestResult = client.GetDepositRequest();
-            if (depositRequestResult != null)
+            if(depositRequestResult != null)
             {
                 PrintDepositMoney(depositRequestResult);
             }
@@ -79,7 +93,7 @@ namespace BTCTrader.APIExample
             };
 
             depositRequestResult = client.MakeDepositRequest(depositRequest);
-            if (depositRequestResult != null)
+            if(depositRequestResult != null)
             {
                 PrintDepositMoney(depositRequestResult);
             }
@@ -87,7 +101,7 @@ namespace BTCTrader.APIExample
             //Withdrawal Money
             //GET
             var existingWithdrawalRequest = client.GetWithdrawalRequest();
-            if (existingWithdrawalRequest != null)
+            if(existingWithdrawalRequest != null)
             {
                 PrintWithdrawalMoney(existingWithdrawalRequest);
             }
@@ -106,7 +120,7 @@ namespace BTCTrader.APIExample
             };
 
             existingWithdrawalRequest = client.MakeWithdrawalRequest(withdrawalRequest);
-            if (existingWithdrawalRequest != null)
+            if(existingWithdrawalRequest != null)
             {
                 PrintWithdrawalMoney(existingWithdrawalRequest);
             }
@@ -122,7 +136,7 @@ namespace BTCTrader.APIExample
             cancelOperation = client.CancelWithdrawalRequest("balance_request_id_here");
             Console.WriteLine(cancelOperation);
 
-            // Submit an ask order at 1,000,000 per btc and print the received order ID to the console.
+            // Submit an ask order at 1,000,000 per btc and print the received order ID to the Console.
             var order = new Order
             {
                 Price = 657m,
@@ -130,10 +144,10 @@ namespace BTCTrader.APIExample
                 Type = Order.Ask,
                 IsMarketOrder = 0
             };
-            
-            if (client.SubmitOrder(ref order))
+
+            if(client.SubmitOrder(ref order))
             {
-                Console.WriteLine("The submitted order was assigned the Id: " + order.Id); 
+                Console.WriteLine("The submitted order was assigned the Id: " + order.Id);
             }
 
             Console.ReadLine();
@@ -141,16 +155,16 @@ namespace BTCTrader.APIExample
 
         private static void PrintDepositMoney(DepositRequestResult output)
         {
-            if (string.IsNullOrEmpty(output.DepositCode)) return;
+            if(string.IsNullOrEmpty(output.DepositCode)) return;
 
             Console.WriteLine(output.Id);
             Console.WriteLine(output.Amount);
             Console.WriteLine(output.AccountOwner);
 
-            foreach (var bankAccount in output.Banks)
+            foreach(var bankaccount in output.Banks)
             {
-                Console.WriteLine(bankAccount.BankName);
-                Console.WriteLine(bankAccount.Iban);
+                Console.WriteLine(bankaccount.BankName);
+                Console.WriteLine(bankaccount.Iban);
             }
 
             Console.WriteLine(output.CurrencyType);
@@ -161,7 +175,7 @@ namespace BTCTrader.APIExample
 
         private static void PrintWithdrawalMoney(WithdrawalRequestInfo output)
         {
-            if (output.HasBalanceRequest)
+            if(output.HasBalanceRequest)
             {
                 Console.WriteLine(output.BalanceRequestId);
                 Console.WriteLine(output.Amount);
@@ -172,16 +186,16 @@ namespace BTCTrader.APIExample
             }
             else
             {
-                if (output.BankList != null)
-                    foreach (var bank in output.BankList)
+                if(output.BankList != null)
+                    foreach(var bank in output.BankList)
                     {
                         Console.WriteLine(bank.Key);
                         Console.WriteLine(bank.Value);
                         Console.WriteLine("--------------------");
                     }
 
-                if (output.FriendlyNameList != null)
-                    foreach (var bank in output.FriendlyNameList)
+                if(output.FriendlyNameList != null)
+                    foreach(var bank in output.FriendlyNameList)
                     {
                         Console.WriteLine(bank.Key);
                         Console.WriteLine(bank.Value);
