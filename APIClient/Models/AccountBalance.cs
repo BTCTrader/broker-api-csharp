@@ -31,29 +31,22 @@ namespace BTCTrader.APIClient.Models
         [JsonProperty("eth_available")]
         public decimal ETHAvailable { get; set; }
 
-        [JsonProperty("btctry_fee_percentage")]
-        public decimal BTCTRYFeePercentage { get; set; }
+        [JsonProperty("btctry_taker_fee_percentage")]
+        public decimal BTCTRYTakerFeePercentage { get; set; }
 
         [JsonProperty("btctry_maker_fee_percentage")]
         public decimal BTCTRYMakerFeePercentage { get; set; }
 
-        [JsonProperty("ethtry_fee_percentage")]
-        public decimal ETHTRYFeePercentage { get; set; }
+        [JsonProperty("ethtry_taker_fee_percentage")]
+        public decimal ETHTRYTakerFeePercentage { get; set; }
 
         [JsonProperty("ethtry_maker_fee_percentage")]
         public decimal ETHTRYMakerFeePercentage { get; set; }
 
-        [JsonProperty("ethbtc_fee_percentage")]
-        public decimal ETHBTCFeePercentage { get; set; }
+        [JsonProperty("ethbtc_taker_fee_percentage")]
+        public decimal ETHBTCTakerFeePercentage { get; set; }
 
         [JsonProperty("ethbtc_maker_fee_percentage")]
         public decimal ETHBTCMakerFeePercentage { get; set; }
-
-        public override string ToString()
-        {
-            return "TRY Balance: " + TRYBalance + "\n" + "BTC Balance: " + BTCBalance + "\n" + "ETH Balance: "
-                   + ETHBalance + "\n" + "TRY Reserved: " + TRYReserved + "\n" + "BTC Reserved: " + BTCReserved + "\n"
-                   + "ETH Reserved: " + ETHReserved + "\n";
-        }
     }
 }
