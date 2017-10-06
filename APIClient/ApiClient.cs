@@ -136,48 +136,13 @@ namespace BTCTrader.APIClient
         }
 
         /// <summary>
-        /// Sells all available bitcoin in user account with market order
-        /// </summary>
-        /// <returns>True if order submitted successfully, false if order submission failed</returns>
-        public bool SellAll(string pairSymbol)
-        {
-            var accountBalance = GetAccountBalance(pairSymbol);
-            var order = new Order
-            {
-                IsMarketOrder = 1,
-                Type = Order.Ask,
-                Amount = accountBalance.NumeratorAvailable,
-                PairSymbol = pairSymbol
-            };
-
-            return SubmitOrder(ref order);
-        }
-
-        /// <summary>
-        /// Buy bitcoin with all available MoneyBalance in user account with market order
-        /// </summary>
-        /// <returns>True if order submitted successfully, false if order submission failed</returns>
-        public bool BuyWithAllMyMoney(string pairSymbol)
-        {
-            var accountBalance = GetAccountBalance(pairSymbol);
-            var order = new Order
-            {
-                IsMarketOrder = 1,
-                Type = Order.Bid,
-                Total = accountBalance.DenominatorAvailable,
-            };
-
-            return SubmitOrder(ref order);
-        }
-
-        /// <summary>
         /// Get the authenticated account's balance
         /// </summary>
         /// <returns>An object of type AccountBalance. Null if account balance cannot be retreived </returns>
-        public AccountBalance GetAccountBalance(string pairSymbol)
+        public AccountBalance GetAccountBalance()
         {
             AccountBalance result = null;
-            var response = SendRequest(HttpVerbs.Get, $"api/balance?pairSymbol={pairSymbol}", false, true);
+            var response = SendRequest(HttpVerbs.Get, "api/balance", false, true);
             if(response != null)
                 result = JsonConvert.DeserializeObject<AccountBalance>(response.Content.ReadAsStringAsync().Result);
 
@@ -347,7 +312,7 @@ namespace BTCTrader.APIClient
         {
             DepositRequestResult result = null;
 
-            var response = SendRequest(HttpVerbs.Get, "api/DepositMoney", false, true);
+            var response = SendRequest(HttpVerbs.Get, "api/depositMoney", false, true);
             if(response != null)
             {
                 result = JsonConvert.DeserializeObject<DepositRequestResult>(response.Content.ReadAsStringAsync().Result);
@@ -364,7 +329,7 @@ namespace BTCTrader.APIClient
         {
             DepositRequestResult result = null;
 
-            var response = SendRequest(HttpVerbs.Post, "api/DepositMoney", model, true);
+            var response = SendRequest(HttpVerbs.Post, "api/depositMoney", model, true);
             if(response != null)
             {
                 result = JsonConvert.DeserializeObject<DepositRequestResult>(response.Content.ReadAsStringAsync().Result);

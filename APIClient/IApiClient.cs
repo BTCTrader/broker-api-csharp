@@ -7,7 +7,7 @@ namespace BTCTrader.APIClient
     {
         Ticker GetTicker();
         Ticker GetTicker(string pairSymbol);
-        AccountBalance GetAccountBalance(string pairSymbol);
+        AccountBalance GetAccountBalance();
         IList<Order> GetOpenOrders(string pairSymbol);
         IList<UserTransOutput> GetUserTransactions(int limit, int offset, bool ascending);
         IList<UserTransOutput> GetUserTransactions();

@@ -4,33 +4,56 @@ namespace BTCTrader.APIClient.Models
 {
     public class AccountBalance
     {
-        [JsonProperty("denominator_balance")]
-        public decimal DenominatorBalance { get; set; }
+        [JsonProperty("try_balance")]
+        public decimal TRYBalance { get; set; }
 
-        [JsonProperty("numerator_balance")]
-        public decimal NumeratorBalance { get; set; }
+        [JsonProperty("btc_balance")]
+        public decimal BTCBalance { get; set; }
 
-        [JsonProperty("denominator_reserved")]
-        public decimal DenominatorReserved { get; set; }
+        [JsonProperty("eth_balance")]
+        public decimal ETHBalance { get; set; }
 
-        [JsonProperty("numerator_reserved")]
-        public decimal NumeratorReserved { get; set; }
+        [JsonProperty("try_reserved")]
+        public decimal TRYReserved { get; set; }
 
-        [JsonProperty("denominator_available")]
-        public decimal DenominatorAvailable { get; set; }
+        [JsonProperty("btc_reserved")]
+        public decimal BTCReserved { get; set; }
 
-        [JsonProperty("numerator_available")]
-        public decimal NumeratorAvailable { get; set; }
+        [JsonProperty("eth_reserved")]
+        public decimal ETHReserved { get; set; }
 
-        [JsonProperty("fee_percentage")]
-        public decimal FeePercentage { get; set; }
+        [JsonProperty("try_available")]
+        public decimal TRYAvailable { get; set; }
 
-        public string PairSymbol { get; set; }
+        [JsonProperty("btc_available")]
+        public decimal BTCAvailable { get; set; }
+
+        [JsonProperty("eth_available")]
+        public decimal ETHAvailable { get; set; }
+
+        [JsonProperty("btctry_fee_percentage")]
+        public decimal BTCTRYFeePercentage { get; set; }
+
+        [JsonProperty("btctry_maker_fee_percentage")]
+        public decimal BTCTRYMakerFeePercentage { get; set; }
+
+        [JsonProperty("ethtry_fee_percentage")]
+        public decimal ETHTRYFeePercentage { get; set; }
+
+        [JsonProperty("ethtry_maker_fee_percentage")]
+        public decimal ETHTRYMakerFeePercentage { get; set; }
+
+        [JsonProperty("ethbtc_fee_percentage")]
+        public decimal ETHBTCFeePercentage { get; set; }
+
+        [JsonProperty("ethbtc_maker_fee_percentage")]
+        public decimal ETHBTCMakerFeePercentage { get; set; }
+
         public override string ToString()
         {
-            return "Denominator Balance: " + DenominatorBalance + "\n" + "Numerator Balance: " + NumeratorBalance + "\n" +
-                   "Denominator Reserved: " + DenominatorReserved + "\n" + "Numerator Reserved: " + NumeratorReserved + "\n" +
-                   "Pair Symbol: " + PairSymbol;
+            return "TRY Balance: " + TRYBalance + "\n" + "BTC Balance: " + BTCBalance + "\n" + "ETH Balance: "
+                   + ETHBalance + "\n" + "TRY Reserved: " + TRYReserved + "\n" + "BTC Reserved: " + BTCReserved + "\n"
+                   + "ETH Reserved: " + ETHReserved + "\n";
         }
     }
 }

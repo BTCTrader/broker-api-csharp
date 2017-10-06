@@ -53,17 +53,16 @@ namespace BTCTrader.APIExample
                 Console.WriteLine(trade);
             }
 
-            // Print the last 7 days' OHLC to the Console
-            //var ohlc = client.GetDailyOHLC(7);
-            //foreach(var dailyOhlc in ohlc)
-            //{
-            //    Console.WriteLine(dailyOhlc);
-            //}
-
             // BELOW THIS LINE REQUIRES AUTHENTICATION
-            var accountBalance = client.GetAccountBalance(PAIRSYMBOL);
-            Console.WriteLine($"My total {PAIRSYMBOL.Substring(0,3)} : {accountBalance.NumeratorBalance}"); // Print my bitcoin balance to Console
-            Console.WriteLine($"My total {PAIRSYMBOL.Substring(3, 3)} : {accountBalance.DenominatorBalance}");
+            var accountBalance = client.GetAccountBalance();
+            Console.WriteLine($"My total TRY balance: {accountBalance.TRYBalance}");
+            Console.WriteLine($"My total BTC balance: {accountBalance.BTCBalance}");
+            Console.WriteLine($"My total ETH balance: {accountBalance.ETHBalance}");
+
+            Console.WriteLine($"My total TRY available balance: {accountBalance.TRYAvailable}");
+            Console.WriteLine($"My total BTC available balance: {accountBalance.BTCAvailable}");
+            Console.WriteLine($"My total ETH available balance: {accountBalance.ETHAvailable}");
+
 
             var openorOrders = client.GetOpenOrders(PAIRSYMBOL);
             if(openorOrders.Count != 0)
