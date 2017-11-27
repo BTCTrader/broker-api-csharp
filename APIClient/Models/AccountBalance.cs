@@ -48,5 +48,12 @@ namespace BTCTrader.APIClient.Models
 
         [JsonProperty("ethbtc_maker_fee_percentage")]
         public decimal ETHBTCMakerFeePercentage { get; set; }
+
+        public override string ToString()
+        {
+            return "TRY Balance: " + TRYBalance + "\n" + "BTC Balance: " + BTCBalance + "\n" + "ETH Balance: "
+                   + ETHBalance + "\n" + "TRY Reserved: " + TRYReserved + "\n" + "BTC Reserved: " + BTCReserved + "\n"
+                   + "ETH Reserved: " + ETHReserved + "\n";
+        }
     }
 }

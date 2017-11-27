@@ -12,7 +12,6 @@ namespace BTCTrader.APIClient.Models
         public decimal Ask { get; set; }
         public decimal Open { get; set; }
         public decimal Average { get; set; }
-        public string PairSymbol { get; set; }
         public override string ToString()
         {
             return "Last: " + Last + "\n" + "High: " + High + "\n" +

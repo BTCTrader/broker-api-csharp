@@ -5,22 +5,31 @@ namespace BTCTrader.APIClient.Models
 {
     public class UserTransOutput
     {
-        [JsonProperty("Id")]
+        [JsonProperty("id")]
         public string Id { get; set; } // objectId
 
-        [JsonProperty("Date")]
+        [JsonProperty("date")]
         public DateTime Date { get; set; } // CreatedDate
 
-        [JsonProperty("Operation")]
+        [JsonProperty("operation")]
         public string Operation { get; set; } // Operation name
 
-        [JsonProperty("Numerator")]
-        public decimal Numerator{get;set;}
+        [JsonProperty("currency")]
+        public string Currency { get; set; }
 
-        [JsonProperty("Denominator")]
-        public decimal Denominator { get; set; }
+        [JsonProperty("funds")]
+        public decimal Funds { get; set; }
 
-        [JsonProperty("Price")]
+        [JsonProperty("amount")]
+        public decimal Amount { get; set; }
+
+        [JsonProperty("fee")]
+        public decimal Fee { get; set; }
+
+        [JsonProperty("tax")]
+        public decimal Tax { get; set; }
+
+        [JsonProperty("price")]
         public decimal Price { get; set; }
     }
 }
